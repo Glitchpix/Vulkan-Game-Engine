@@ -50,9 +50,9 @@ struct Vertex {
 };
 
 const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
     {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}    
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}    
 };
 
 const std::vector<const char*> validationLayers = {
@@ -148,6 +148,7 @@ private:
     std::vector<VkCommandBuffer> commandBuffers;
 
     VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -197,6 +198,19 @@ private:
         }
 
         vkDeviceWaitIdle(device);
+    }
+
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if (typeFilter & (1 << i) &&
+               (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+
+        throw std::runtime_error("Failed to find suitable memory type!");
     }
 
     void drawFrame() {
@@ -316,6 +330,11 @@ private:
 
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
+        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -330,7 +349,7 @@ private:
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
         // End Render
         vkCmdEndRenderPass(commandBuffer);
@@ -385,6 +404,27 @@ private:
         if(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create vertex buffer!");
         }
+
+        VkMemoryRequirements memRequirements;
+        vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to allocate vertex buffer memory!");
+        }
+
+        vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+        void* data;
+        vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+        memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+        vkUnmapMemory(device, vertexBufferMemory);
+
+
     }
 
     void createRenderPass() {
@@ -1041,6 +1081,7 @@ private:
         cleanupSwapChain();
 
         vkDestroyBuffer(device, vertexBuffer, nullptr);
+        vkFreeMemory(device, vertexBufferMemory, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
             vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
