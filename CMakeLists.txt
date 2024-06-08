@@ -13,6 +13,8 @@ set(GLFW_LIBRARY "C:/Users/Frost/Documents/Libraries/glfw-3.3.9.bin.WIN64/lib-vc
 
 set(GLM_LIBRARY "C:/Users/Frost/Documents/Libraries/glm")
 
+set(STB_INCLUDE_PATH "C:/libs/stb")
+
 set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag)
 
@@ -43,6 +45,7 @@ find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIR})
 include_directories(${GLFW_INCLUDE_DIR})
 include_directories(${GLM_LIBRARY})
+include_directories(${STB_INCLUDE_PATH})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 
