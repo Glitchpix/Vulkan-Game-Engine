@@ -16,11 +16,14 @@ set(GLM_LIBRARY "C:/Users/Frost/Documents/Libraries/glm")
 set(STB_INCLUDE_PATH "C:/libs/stb")
 
 set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+set(TEXTURES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/textures)
 file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag)
 
 add_executable(hello_cool main.cpp)
 
 cmake_print_variables(CMAKE_BUILD_TYPE)
+
+add_custom_target(copy_resources ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${TEXTURES_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/textures)
 
 foreach(SHADER IN LISTS SHADERS)
     get_filename_component(FILENAME ${SHADER} LAST_EXT)
@@ -39,7 +42,7 @@ endForeach()
 
 add_custom_target(shaders ALL DEPENDS ${SPV_SHADERS})
 add_custom_target(shaders_copy ALL DEPENDS ${SPV_SHADERS_COPY})
-add_dependencies(hello_cool shaders_copy shaders)
+add_dependencies(hello_cool copy_resources shaders_copy shaders)
 find_package(Vulkan REQUIRED)
 
 include_directories(${Vulkan_INCLUDE_DIR})

@@ -211,6 +211,7 @@ private:
         createGraphicsPipeline();
         createFramebuffers();
         createCommandPool();
+        createTextureImage();
         createVertexBuffer();
         createIndexBuffer();
         createUniformBuffers();
@@ -492,6 +493,20 @@ private:
             createBuffer(bufferSize, usageFlags, propertyFlags, uniformBuffers[i], uniformBuffersMemory[i]);
             vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
         }
+    }
+
+    void createTextureImage() {
+        int texWidth, texHeight, texChannels;
+        stbi_uc* pixels = stbi_load("textures/aiForest.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        VkDeviceSize imageSize = texWidth * texHeight * 4;
+        
+        if(!pixels) {
+            throw std::runtime_error("Failed to load texture image!");
+        }
+
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+
     }
 
     void createDescriptorPool() {
