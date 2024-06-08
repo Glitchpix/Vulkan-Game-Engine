@@ -448,20 +448,23 @@ private:
         }
     }
 
-    template <typename T>
-    void createVkBuffer(const std::vector<T>& bufferData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usageFlags) {
-        VkDeviceSize bufferSize = sizeof(bufferData[0]) * bufferData.size();
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-
+    void createVkStageBuffer(VkDeviceSize bufferSize, VkBuffer& stagingBuffer, VkDeviceMemory& stagingBufferMemory, const void* pbufferData){
         VkBufferUsageFlags stageUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         VkMemoryPropertyFlags stagePropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
         createBuffer(bufferSize, stageUsageFlags, stagePropertyFlags, stagingBuffer, stagingBufferMemory);
 
         void* data;
         vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, bufferData.data(), (size_t) bufferSize);
+        memcpy(data, pbufferData, (size_t) bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
+    }
+
+    template <typename T>
+    void createVkBuffer(const std::vector<T>& bufferData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usageFlags) {
+        VkDeviceSize bufferSize = sizeof(bufferData[0]) * bufferData.size();
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createVkStageBuffer(bufferSize, stagingBuffer, stagingBufferMemory, bufferData.data());
 
         VkMemoryPropertyFlags propertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usageFlags, propertyFlags, buffer, bufferMemory);
