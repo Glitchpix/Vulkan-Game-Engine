@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -21,6 +23,7 @@
 #include <filesystem>
 #include <array>
 #include <chrono>
+#include <unordered_map>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -64,7 +67,35 @@ struct Vertex {
 
         return attributeDescriptions;
     }
+
+    bool operator==(const Vertex& other) const {
+        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+    }
 };
+
+// Hash_combine from https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
+// By Karl von Moor & Matteo Italia
+inline void hash_combine(std::size_t& seed) { }
+
+template <typename T, typename... Rest>
+inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+    hash_combine(seed, rest...);
+}
+
+namespace std {
+    template<>
+    struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            size_t h = 0;
+            hash_combine(h, hash<glm::vec3>()(vertex.pos), hash<glm::vec3>()(vertex.color), hash<glm::vec2>()(vertex.texCoord));
+            return h;
+        }
+    };  
+}
+
+
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
@@ -653,6 +684,8 @@ private:
             throw std::runtime_error(warn + err);
         }
 
+        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
         for (const auto& shape : shapes) {
             for (const auto& index : shape.mesh.indices) {
                 Vertex vertex{};
@@ -668,8 +701,12 @@ private:
                     1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
                 };
 
-                vertices.push_back(vertex);
-                indices.push_back(static_cast<uint32_t>(indices.size()));
+                if (uniqueVertices.count(vertex) == 0) {
+                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                    vertices.push_back(vertex);
+                }
+
+                indices.push_back(uniqueVertices[vertex]);
             }
         }
     }
