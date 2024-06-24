@@ -16,7 +16,7 @@ set(TINYOBJ_INCLUDE_PATH "C:/libs/tinyobjloader")
 set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 set(TEXTURES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/textures)
 set(MODELS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/models)
-file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag)
+file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag ${SHADER_DIR}/*.comp)
 
 add_executable(hello_cool main.cpp)
 
