@@ -19,6 +19,7 @@ set(MODELS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/models)
 file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag ${SHADER_DIR}/*.comp)
 
 add_executable(hello_cool main.cpp)
+add_executable(hello_compute compute.cpp)
 
 cmake_print_variables(CMAKE_BUILD_TYPE)
 
@@ -29,8 +30,10 @@ add_custom_target(copy_resources ALL COMMAND ${CMAKE_COMMAND} -E copy_directory 
 add_custom_target(copy_models ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${MODELS_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/models)
 
 foreach(SHADER IN LISTS SHADERS)
-    get_filename_component(FILENAME ${SHADER} LAST_EXT)
-    string(REPLACE "." "" FILENAME ${FILENAME})
+    get_filename_component(FILEEND ${SHADER} LAST_EXT)
+    get_filename_component(FILENAME ${SHADER} NAME_WLE)
+    string(REPLACE "." "" FILEEND ${FILEEND})
+    string(APPEND FILENAME ${FILEEND})
     add_custom_command(OUTPUT ${SHADER_DIR}/${FILENAME}.spv
         COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${SHADER} -o ${SHADER_DIR}/${FILENAME}.spv
         DEPENDS ${SHADER}
@@ -57,3 +60,4 @@ include_directories(${TINYOBJ_INCLUDE_PATH})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 
 TARGET_LINK_LIBRARIES(hello_cool ${GLFW_LIBRARY} ${Vulkan_LIBRARIES})
+TARGET_LINK_LIBRARIES(hello_compute ${GLFW_LIBRARY} ${Vulkan_LIBRARIES})
