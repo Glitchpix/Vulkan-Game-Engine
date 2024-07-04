@@ -31,7 +31,7 @@ class DLL_EXPORT Logger {
         static bool init_logging();
         static void shutdown_logging();
         template<class ...Args>
-        static void log_output(log_level level, std::string message, Args... args) {
+        static std::string log_output(log_level level, Args... args) {
             const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
             bool is_error = level < LOG_LEVEL_WARN;
             //TODO handle this
@@ -44,38 +44,39 @@ class DLL_EXPORT Logger {
             }
             stringStream << "\n";
 
-            message = stringStream.str();
+            std::string message = stringStream.str();
 
             std::cout << message;
+            return message;
         }
 };
 
-// #define MSG_FATAL(message, ...) Logger::log_output(LOG_LEVEL_FATAL, message, ...);
+#define MSG_FATAL(...) Logger::log_output(LOG_LEVEL_FATAL, ##__VA_ARGS__);
 
-// #ifndef MSG_ERROR
-// #define MSG_ERROR(message, ...) Logger::log_output(LOG_LEVEL_ERROR, message, ...);
-// #endif
+#ifndef MSG_ERROR
+#define MSG_ERROR(...) Logger::log_output(LOG_LEVEL_ERROR, ##__VA_ARGS__);
+#endif
 
-// #if LOG_WARN_ENABLED == 1
-// #define MSG_WARN(message, ...) Logger::log_output(LOG_LEVEL_WARN, message, ...);
-// #else
-// #define MSG_WARN(message, ...)
-// #endif
+#if LOG_WARN_ENABLED == 1
+#define MSG_WARN(...) Logger::log_output(LOG_LEVEL_WARN, ##__VA_ARGS__);
+#else
+#define MSG_WARN(...)
+#endif
 
-// #if LOG_INFO_ENABLED == 1
-// #define MSG_INFO(message, ...) Logger::log_output(LOG_LEVEL_INFO, message, ...);
-// #else
-// #define MSG_INFO(message, ...)
-// #endif
+#if LOG_INFO_ENABLED == 1
+#define MSG_INFO(...) Logger::log_output(LOG_LEVEL_INFO, ##__VA_ARGS__);
+#else
+#define MSG_INFO(...)
+#endif
 
-// #if LOG_DEBUG_ENABLED == 1
-// #define MSG_DEBUG(message, ...) Logger::log_output(LOG_LEVEL_DEBUG, message, ...);
-// #else
-// #define MSG_DEBUG(message, ...)
-// #endif
+#if LOG_DEBUG_ENABLED == 1
+#define MSG_DEBUG(...) Logger::log_output(LOG_LEVEL_DEBUG, ##__VA_ARGS__);
+#else
+#define MSG_DEBUG(...)
+#endif
 
-// #if LOG_TRACE_ENABLED == 1
-// #define MSG_TRACE(message, ...) Logger::log_output(LOG_LEVEL_TRACE, message, ...);
-// #else
-// #define MSG_TRACE(message, ...)
-// #endif
+#if LOG_TRACE_ENABLED == 1
+#define MSG_TRACE(...) Logger::log_output(LOG_LEVEL_TRACE, ##__VA_ARGS__);
+#else
+#define MSG_TRACE(...)
+#endif
