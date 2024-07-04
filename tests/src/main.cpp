@@ -2,7 +2,7 @@
 
 int main(void) {
     MSG_FATAL("very", " bad");
-    MSG_ERROR("not ", "so ", "bad");
+    MSG_ERROR("not ", "so ", "bad", 3.4);
     MSG_WARN("okay");
     MSG_INFO("good");
     MSG_DEBUG("detailed");

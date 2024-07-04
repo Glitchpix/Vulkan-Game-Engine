@@ -31,7 +31,7 @@ class DLL_EXPORT Logger {
         static bool init_logging();
         static void shutdown_logging();
         template<class ...Args>
-        static std::string log_output(log_level level, Args... args) {
+        static std::string log_output(log_level level, Args&&... args) {
             const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
             bool is_error = level < LOG_LEVEL_WARN;
             //TODO handle this
@@ -39,10 +39,7 @@ class DLL_EXPORT Logger {
             std::ostringstream stringStream;
             stringStream << prepend_level[level];
 
-            for(const auto& arg : {args...}){
-                stringStream << arg;
-            }
-            stringStream << "\n";
+            (stringStream << ... << args) << '\n';
 
             std::string message = stringStream.str();
 
