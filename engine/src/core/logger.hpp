@@ -1,5 +1,6 @@
 #pragma once
 #include "defines.hpp"
+#include <platform/platform.hpp>
 #include <string>
 #include <iostream>
 #include <stdio.h>
@@ -16,8 +17,6 @@
 #define LOG_DEBUG_ENABLED 0
 #define LOG_TRACE_ENABLED 0
 #endif
-
-#define MAXLEN 32000
 
 typedef enum log_level {
     LOG_LEVEL_FATAL = 0,
@@ -36,19 +35,23 @@ class DLL_EXPORT Logger {
         static std::string log_output(log_level level, const char* format, Args&&... args) {
             const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
             bool is_error = level < LOG_LEVEL_WARN;
-            //TODO handle this
 
             std::ostringstream stringStream;
             stringStream << prepend_level[level];
 
-            char buffer[MAXLEN];
-            snprintf(buffer, MAXLEN, format, args...);
+            const unsigned int max_length = 32000;
+            char buffer[max_length];
+            snprintf(buffer, max_length, format, args...);
 
             stringStream << buffer << '\n';
 
             std::string message = stringStream.str();
 
-            std::cout << message;
+            if (is_error) {
+                Platform::consoleWriteError(message.c_str(), level);
+            } else {
+                Platform::consoleWriteError(message.c_str(), level);
+            }
             return message;
         }
 };

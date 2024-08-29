@@ -1,5 +1,8 @@
-#include <core/logger.hpp>
 #include <core/asserts.hpp>
+#include <core/logger.hpp>
+
+// TODO: Test
+#include <platform/platform.hpp>
 
 int main(void) {
     MSG_FATAL("very %s", "bad");
@@ -9,6 +12,13 @@ int main(void) {
     MSG_DEBUG("detailed");
     MSG_TRACE("even");
 
-    ENGINE_ASSERT_MESSAGE(1 == 0, "1 does not equal 0!");
+    Platform* window{};
+    if (window->startup("Engine Testbed", 100, 100, 1280, 720)) {
+        while(true) {
+            window->pumpMessages();
+            window->sleep(100);
+        }
+    }
+    window->shutdown();
     return 0;
 }
