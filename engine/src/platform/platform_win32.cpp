@@ -22,8 +22,9 @@ struct WindowsState : Platform::State {
 Platform::Platform() {
     mState = std::make_unique<WindowsState>();
 }
-DLL_EXPORT bool Platform::startup(const std::string& application_name, int x, int y, unsigned int width, unsigned int height) {
+bool Platform::startup(const std::string& application_name, int x, int y, unsigned int width, unsigned int height) {
 
+    //TODO Check if there's a better way instead of static_cast
     static_cast<WindowsState*>(mState.get())->h_instance = GetModuleHandleA(0);
 
     // Setup and register window class.
@@ -104,14 +105,14 @@ DLL_EXPORT bool Platform::startup(const std::string& application_name, int x, in
 
     return true;
 }
-DLL_EXPORT void Platform::shutdown() {
+void Platform::shutdown() {
     if (static_cast<WindowsState*>(mState.get())->hwnd) {
         DestroyWindow(static_cast<WindowsState*>(mState.get())->hwnd);
         static_cast<WindowsState*>(mState.get())->hwnd = nullptr;
     }
 }
 
-DLL_EXPORT bool Platform::pumpMessages() {
+bool Platform::pumpMessages() {
     MSG message;
     while(PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
         TranslateMessage(&message);
@@ -121,7 +122,7 @@ DLL_EXPORT bool Platform::pumpMessages() {
     return true;
 }
 
-DLL_EXPORT void Platform::consoleWrite(const std::string& message, unsigned char colour) {
+void Platform::consoleWrite(const std::string& message, unsigned char colour) {
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     // Warning levels Fatal to Trace
     static unsigned char levels[6] = {64, 4, 6, 2, 1, 8};
@@ -133,7 +134,7 @@ DLL_EXPORT void Platform::consoleWrite(const std::string& message, unsigned char
     WriteConsoleA(console_handle, message.c_str(), static_cast<DWORD>(length), number_written, 0);
 }
 //TODO refactor this into inner function
-DLL_EXPORT void Platform::consoleWriteError(const std::string& message, unsigned char colour) {
+void Platform::consoleWriteError(const std::string& message, unsigned char colour) {
     HANDLE console_handle = GetStdHandle(STD_ERROR_HANDLE);
     // Warning levels Fatal to Trace
     static unsigned char levels[6] = {64, 4, 6, 2, 1, 8};
@@ -145,13 +146,13 @@ DLL_EXPORT void Platform::consoleWriteError(const std::string& message, unsigned
     WriteConsoleA(console_handle, message.c_str(), static_cast<DWORD>(length), number_written, 0);
 }
 
-DLL_EXPORT double Platform::getAbsoluteTime() {
+double Platform::getAbsoluteTime() {
     LARGE_INTEGER now_time;
     QueryPerformanceCounter(&now_time);
     return (double)now_time.QuadPart * mClock_frequency;
 }
 
-DLL_EXPORT void Platform::sleep(std::size_t ms) {
+void Platform::sleep(std::size_t ms) {
     Sleep(static_cast<DWORD>(ms));
 }
 
