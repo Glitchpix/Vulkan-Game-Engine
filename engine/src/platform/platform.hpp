@@ -18,8 +18,8 @@ public:
     void shutdown();
     bool pumpMessages();
 
-    static void consoleWrite(const std::string& message, unsigned char colour);
-    static void consoleWriteError(const std::string& message, unsigned char colour);
+    DLL_EXPORT static void consoleWrite(const std::string& message, unsigned char colour);
+    DLL_EXPORT static void consoleWriteError(const std::string& message, unsigned char colour);
 
     double getAbsoluteTime();
     void sleep(std::size_t ms);

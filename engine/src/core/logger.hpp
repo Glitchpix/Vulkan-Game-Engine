@@ -27,7 +27,7 @@ typedef enum log_level {
     LOG_LEVEL_TRACE = 5
 } log_level;
 
-class DLL_EXPORT Logger {
+class Logger {
     public:
         static bool init_logging();
         static void shutdown_logging();
