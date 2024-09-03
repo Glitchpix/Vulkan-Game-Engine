@@ -1,8 +1,9 @@
 #include "application.hpp"
 #include "logger.hpp"
 #include "platform/platform.hpp"
+#include "game_types.hpp"
 
-DLL_EXPORT Application::Application(short x, short y, short width, short height, char* name): mX{x}, mY{y}, mWidth{width}, mHeight{height}, mName{name} {
+Application::Application(Game* game): mX{game->mX}, mY{game->mY}, mWidth{game->mWidth}, mHeight{game->mHeight}, mName{game->mName}, mGame{game} {
     //TODO: Enforce single instance?
 
     // Initialize systems
@@ -24,13 +25,35 @@ DLL_EXPORT Application::Application(short x, short y, short width, short height,
         MSG_FATAL("Failed to start platform window!");
         //TODO: Probably throw an exception here too...
     }
+
+    if (!(mGame->initialize())){
+        MSG_FATAL("Game failed to initialize!");
+        //TODO: Probably throw an exception here too...
+    }
+
+    mGame->on_resize(mWidth, mHeight);
+
 }
 
-bool DLL_EXPORT Application::run(){
+bool Application::run(){
     while(mRunning) {
         if(!(mPlatform->pumpMessages())){
             mRunning = false;
+            break;
         };
+
+        if(!mSuspended) {
+            if (!(mGame->update(0.0f))){
+                MSG_FATAL("Game update failed! Shutting down.");
+                mRunning = false;
+                break;
+            }
+            if (!(mGame->render(0.0f))){
+                MSG_FATAL("Game render failed! Shutting down.");
+                mRunning = false;
+                break;
+            }
+        }
         mPlatform->sleep(100);
     }
 
