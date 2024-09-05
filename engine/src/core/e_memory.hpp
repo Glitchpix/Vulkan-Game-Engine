@@ -9,7 +9,7 @@ enum memory_tag {
     MEMORY_TAG_MAX_TAGS
 };
 
-namespace Memory {
+namespace memory {
     DLL_EXPORT void initialize();
     DLL_EXPORT void shutdown();
 

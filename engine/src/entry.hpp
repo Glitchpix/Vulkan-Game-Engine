@@ -8,27 +8,27 @@ extern bool create_game(Game*);
 
 int main() {
 
-    Memory::initialize();
+    memory::initialize();
     
     // Test memory
     //TODO: Remove this
     const size_t blockSize = 1024*5;
-    void* testBlockA = Memory::allocate(blockSize, MEMORY_TAG_TEST);
-    Memory::zero(testBlockA, blockSize);
-    Memory::set(testBlockA, 1, blockSize);
+    void* testBlockA = memory::allocate(blockSize, MEMORY_TAG_TEST);
+    memory::zero(testBlockA, blockSize);
+    memory::set(testBlockA, 1, blockSize);
 
-    void* testBlockB = Memory::allocate(blockSize, MEMORY_TAG_TEST);
-    Memory::zero(testBlockB, blockSize);
-    Memory::set(testBlockB, 1, blockSize);
+    void* testBlockB = memory::allocate(blockSize, MEMORY_TAG_TEST);
+    memory::zero(testBlockB, blockSize);
+    memory::set(testBlockB, 1, blockSize);
 
-    MSG_INFO(Memory::get_usage());
+    MSG_INFO(memory::get_usage());
 
     MSG_INFO("Freeing blocks...")
 
-    Memory::free_block(testBlockA, blockSize, MEMORY_TAG_TEST);
-    Memory::free_block(testBlockB, blockSize, MEMORY_TAG_TEST);
+    memory::free_block(testBlockA, blockSize, MEMORY_TAG_TEST);
+    memory::free_block(testBlockB, blockSize, MEMORY_TAG_TEST);
 
-    MSG_INFO(Memory::get_usage());
+    MSG_INFO(memory::get_usage());
 
     Game game{};
     if(!create_game(&game)){
@@ -48,7 +48,7 @@ int main() {
         return -3;
     };
 
-    Memory::shutdown();
+    memory::shutdown();
     
     return 0;
 }

@@ -12,7 +12,7 @@
 #define debugBreak() __builtin_trap()
 #endif
 
-namespace Assertions{
+namespace assertions{
     DLL_EXPORT void reportAssertionFailure(const char* expression, const char* format, const char* file, size_t line);
 }
 
@@ -20,7 +20,7 @@ namespace Assertions{
     {                                                               \
         if (expr) {                                                 \
         } else {                                                    \
-            Assertions::reportAssertionFailure(#expr, "", __FILE__, __LINE__);  \
+            assertions::reportAssertionFailure(#expr, "", __FILE__, __LINE__);  \
             debugBreak();                                           \
         }                                                           \
     }                                                               
@@ -29,7 +29,7 @@ namespace Assertions{
     {                                                                   \
         if (expr) {                                                     \
         } else {                                                        \
-            Assertions::reportAssertionFailure(#expr, format, __FILE__, __LINE__);  \
+            assertions::reportAssertionFailure(#expr, format, __FILE__, __LINE__);  \
             debugBreak();                                               \
         }                                                               \
     }                                                                   
@@ -39,7 +39,7 @@ namespace Assertions{
     {                                                               \
         if (expr) {                                                 \
         } else {                                                    \
-            Assertions::reportAssertionFailure(#expr, "", __FILE__, __LINE__);  \
+            assertions::reportAssertionFailure(#expr, "", __FILE__, __LINE__);  \
             debugBreak();                                           \
         }                                                           \
     }                                                               

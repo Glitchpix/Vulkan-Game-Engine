@@ -12,7 +12,7 @@ https://stackoverflow.com/questions/19053351/how-do-i-use-a-custom-deleter-with-
 https://en.cppreference.com/w/cpp/memory/unique_ptr
 */
 
-namespace Memory {
+namespace memory {
     struct Stats{
         size_t total_allocated;
         size_t tagged_allocations[MEMORY_TAG_MAX_TAGS];
@@ -24,15 +24,15 @@ namespace Memory {
         "TEST   "};
 }
 
-void Memory::initialize(){
-    zero(&Memory::stats, sizeof(Memory::stats));
+void memory::initialize(){
+    zero(&memory::stats, sizeof(memory::stats));
 }
 
-void Memory::shutdown(){
+void memory::shutdown(){
 
 }
 
-void* Memory::allocate(size_t size, memory_tag tag){
+void* memory::allocate(size_t size, memory_tag tag){
     if (tag == MEMORY_TAG_UNKNOWN) {
         MSG_WARN("Allocate called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
@@ -44,7 +44,7 @@ void* Memory::allocate(size_t size, memory_tag tag){
     return block;
 }
 
-void Memory::free_block(void* block, size_t size, memory_tag tag){
+void memory::free_block(void* block, size_t size, memory_tag tag){
     if (tag == MEMORY_TAG_UNKNOWN) {
         MSG_WARN("Free called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
@@ -54,19 +54,19 @@ void Memory::free_block(void* block, size_t size, memory_tag tag){
     free(block);
 }
 
-void* Memory::zero(void* block, size_t size){
+void* memory::zero(void* block, size_t size){
     return memset(block, 0, size);
 }
 
-void* Memory::copy(void* dest, const void* source, size_t size){
+void* memory::copy(void* dest, const void* source, size_t size){
     return memcpy(dest, source, size);
 }
 
-void* Memory::set(void* dest, int value, size_t size){
+void* memory::set(void* dest, int value, size_t size){
     return memset(dest, value, size);
 }
 
-char* Memory::get_usage(){
+char* memory::get_usage(){
     const long gibibyte = 1024*1024*1024;
     const long mebibyte = 1024*1024;
     const long kibibyte = 1024;
