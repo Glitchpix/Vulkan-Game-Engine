@@ -3,21 +3,36 @@
 #include "defines.hpp"
 #include <memory>
 
-enum memory_tag {
-    MEMORY_TAG_UNKNOWN,
-    MEMORY_TAG_TEST,
+class MemoryManager{
+public:
+    enum tag {
+        MEMORY_TAG_UNKNOWN,
+        MEMORY_TAG_TEST,
 
-    MEMORY_TAG_MAX_TAGS
-};
+        MEMORY_TAG_MAX_TAGS
+    };
 
-namespace memory {
     DLL_EXPORT void initialize();
     DLL_EXPORT void shutdown();
 
-    DLL_EXPORT std::shared_ptr<void> allocate(size_t size, memory_tag tag);
-    DLL_EXPORT void free_block(void* block, size_t size, memory_tag tag);
-    DLL_EXPORT void* zero(void* block, size_t size);
-    DLL_EXPORT void* copy(void* dest, const void* source, size_t size);
-    DLL_EXPORT void* set(void* dest, int value, size_t size);
+    DLL_EXPORT std::shared_ptr<void> allocate(size_t size, tag tag);
+    DLL_EXPORT void free_block(void* block, size_t size, tag tag);
+
     DLL_EXPORT char* get_usage();
-}
+
+    DLL_EXPORT static void* zero(void* block, size_t size);
+    DLL_EXPORT static void* copy(void* dest, const void* source, size_t size);
+    DLL_EXPORT static void* set(void* dest, int value, size_t size);
+
+private:
+    struct Stats{
+        size_t total_allocated;
+        size_t tagged_allocations[static_cast<int>(tag::MEMORY_TAG_MAX_TAGS)];
+    };
+    Stats mStats{};
+
+    const char* tag_strings[static_cast<int>(tag::MEMORY_TAG_MAX_TAGS)] = {
+        "UNKNOWN",
+        "TEST   "
+    };
+};
