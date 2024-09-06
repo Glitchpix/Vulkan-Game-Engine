@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include <memory>
 
 enum memory_tag {
     MEMORY_TAG_UNKNOWN,
@@ -13,7 +14,7 @@ namespace memory {
     DLL_EXPORT void initialize();
     DLL_EXPORT void shutdown();
 
-    DLL_EXPORT void* allocate(size_t size, memory_tag tag);
+    DLL_EXPORT std::shared_ptr<void> allocate(size_t size, memory_tag tag);
     DLL_EXPORT void free_block(void* block, size_t size, memory_tag tag);
     DLL_EXPORT void* zero(void* block, size_t size);
     DLL_EXPORT void* copy(void* dest, const void* source, size_t size);

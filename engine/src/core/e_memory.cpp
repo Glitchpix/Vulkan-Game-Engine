@@ -10,6 +10,14 @@
 https://stackoverflow.com/questions/39288891/why-is-shared-ptrvoid-legal-while-unique-ptrvoid-is-ill-formed
 https://stackoverflow.com/questions/19053351/how-do-i-use-a-custom-deleter-with-a-stdunique-ptr-member
 https://en.cppreference.com/w/cpp/memory/unique_ptr
+https://stackoverflow.com/questions/62312973/how-to-initialize-unique-ptr-from-raw-c-heap-memory-pointer
+
+https://stackoverflow.com/questions/12264701/shared-ptr-with-malloc-and-free
+
+Future implementation idea: Practical Memory Pool Based Allocators For Modern C++
+https://www.youtube.com/watch?v=l14Zkx5OXr4
+
+Lambda functions may cause issues with many calls to allocate, investigate this.
 */
 
 namespace memory {
@@ -32,15 +40,17 @@ void memory::shutdown(){
 
 }
 
-void* memory::allocate(size_t size, memory_tag tag){
+std::shared_ptr<void> memory::allocate(size_t size, memory_tag tag){
     if (tag == MEMORY_TAG_UNKNOWN) {
         MSG_WARN("Allocate called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
     stats.total_allocated += size;
     stats.tagged_allocations[tag] += size;
 
-    void* block = malloc(size);
-    memset(block, 0, size);
+    // void* block = malloc(size);
+    // memset(block, 0, size);
+
+    std::shared_ptr<void> block(malloc(size), [=](void* block) {memory::free_block(block, size, tag);});
     return block;
 }
 
@@ -52,6 +62,8 @@ void memory::free_block(void* block, size_t size, memory_tag tag){
     stats.tagged_allocations[tag] -= size;
 
     free(block);
+
+    MSG_DEBUG("Block: %p with size: %d and tag: %s freed", block, size, tag_strings[tag]);
 }
 
 void* memory::zero(void* block, size_t size){
