@@ -4,13 +4,14 @@
 #include <string>
 #include <memory>
 
+class InputHandler;
 class Platform {
 public:
     struct State {};
     std::unique_ptr<State> mState;
     double mClock_frequency;
 
-    Platform();
+    Platform(InputHandler* InputHandler);
     ~Platform() = default;
 
     bool startup(const std::string& application_name,
@@ -23,4 +24,6 @@ public:
 
     double getAbsoluteTime();
     void sleep(std::size_t ms);
+private:
+    InputHandler* mInputHandler;
 };

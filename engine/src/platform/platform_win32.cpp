@@ -5,13 +5,15 @@
 #if ENGINE_PLATFORM_WINDOWS
 
 #define NOMINMAX
-#include <core/logger.hpp>
+#include "core/logger.hpp"
+#include "core/input.hpp"
 
 #include <windows.h>
 #include <windowsx.h>  // param input extraction
 #include <stdlib.h>
 
-LRESULT CALLBACK win32_process_message(HWND hwnd, unsigned int msg, WPARAM w_param, LPARAM l_param);
+
+LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 struct WindowsState : Platform::State {
     HINSTANCE h_instance;
@@ -19,7 +21,7 @@ struct WindowsState : Platform::State {
     LARGE_INTEGER mStart_time;
 };
 
-Platform::Platform() {
+Platform::Platform(InputHandler* inputHandler) : mInputHandler{inputHandler} {
     mState = std::make_unique<WindowsState>();
 }
 bool Platform::startup(const std::string& application_name, int x, int y, unsigned int width, unsigned int height) {
@@ -79,16 +81,16 @@ bool Platform::startup(const std::string& application_name, int x, int y, unsign
     HWND handle = CreateWindowExA(
         window_ex_style, "engine_window_class", application_name.c_str(),
         window_style, window_x, window_y, window_width, window_height,
-        0, 0, static_cast<WindowsState*>(mState.get())->h_instance, 0);
+        0, 0, static_cast<WindowsState*>(mState.get())->h_instance, mInputHandler);
 
     if (handle == nullptr) {
         MessageBoxA(NULL, "Window creation failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
 
         MSG_FATAL("Window creation failed!");
         return false;
-    } else {
-        static_cast<WindowsState*>(mState.get())->hwnd = handle;
     }
+
+    static_cast<WindowsState*>(mState.get())->hwnd = handle;
 
     // Show the window
     bool should_activate = true;  // TODO: if the window should not accept input, this should be false.
@@ -156,7 +158,20 @@ void Platform::sleep(std::size_t ms) {
     Sleep(static_cast<DWORD>(ms));
 }
 
-LRESULT CALLBACK win32_process_message(HWND hwnd, unsigned int msg, WPARAM w_param, LPARAM l_param){
+LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
+    // Get pointer to platform instance of input handler
+    InputHandler* inputHandler;
+    if (msg == WM_CREATE)
+    {
+        CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+        inputHandler = reinterpret_cast<InputHandler*>(pCreate->lpCreateParams);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)inputHandler);
+    }
+    else
+    {
+        LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        inputHandler = reinterpret_cast<InputHandler*>(ptr);
+    }
     switch (msg) {
         case WM_ERASEBKGND:
             return 1;
@@ -177,20 +192,23 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, unsigned int msg, WPARAM w_par
         case WM_SYSKEYDOWN:
         case WM_KEYUP:
         case WM_SYSKEYUP: {
-            // char pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
-            // TODO: input process
+            bool pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
+            InputHandler::Key key = static_cast<InputHandler::Key>(wParam);
+            inputHandler->process_key(key, pressed);
         } break;
         case WM_MOUSEMOVE: {
-            // int x_position GET_X_LPARAM(l_param);
-            // int y_position GET_Y_LPARAM(l_param);
-            // TODO: mouse process
+            i16 x_position = static_cast<i16>(GET_X_LPARAM(lParam));
+            i16 y_position = static_cast<i16>(GET_Y_LPARAM(lParam));
+
+            inputHandler->process_mouse_move(x_position, y_position);
         } break;
         case WM_MOUSEWHEEL: {
-            // int z_delta = GET_WHEEL_DELTA_WPARAM(w_param);
-            // if (z_delta != 0) {
-            //     z_delta = (z_delta < 0) ? -1 : 1;
-            // }
-            // TODO: mousewheel process
+            i8 z_delta = static_cast<i8>(GET_WHEEL_DELTA_WPARAM(wParam));
+            if (z_delta != 0) {
+                z_delta = (z_delta < 0) ? -1 : 1;
+                inputHandler->process_mouse_wheel(z_delta);
+            }
+            
         } break;
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
@@ -198,12 +216,27 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, unsigned int msg, WPARAM w_par
         case WM_LBUTTONUP:
         case WM_MBUTTONUP:
         case WM_RBUTTONUP: {
-            // char pressed = (msg == WM_LBUTTONDOWN) || (msg == WM_MBUTTONDOWN) || (msg == WM_RBUTTONDOWN);
-            // TODO: input process
+            bool pressed = (msg == WM_LBUTTONDOWN) || (msg == WM_MBUTTONDOWN) || (msg == WM_RBUTTONDOWN);
+            InputHandler::Button button;
+            switch (msg) {
+                case WM_LBUTTONDOWN:
+                case WM_LBUTTONUP:
+                    button = InputHandler::Button::BUTTON_LEFT;
+                    break;
+                case WM_RBUTTONDOWN:
+                case WM_RBUTTONUP:
+                    button = InputHandler::Button::BUTTON_RIGHT;
+                    break;
+                case WM_MBUTTONDOWN:
+                case WM_MBUTTONUP:
+                    button = InputHandler::Button::BUTTON_MIDDLE;
+                    break;                    
+            }
+            inputHandler->process_button(button, pressed);
         } break;
     }
 
-    return DefWindowProcA(hwnd, msg, w_param, l_param);
+    return DefWindowProcA(hwnd, msg, wParam, lParam);
 }
 
 #endif
