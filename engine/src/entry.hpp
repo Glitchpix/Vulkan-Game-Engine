@@ -1,5 +1,6 @@
 #pragma once
 #include "core/application.hpp"
+#include "core/event.hpp"
 #include "core/logger.hpp"
 #include "game_types.hpp"
 #include "core/e_memory.hpp"
@@ -40,7 +41,9 @@ int main() {
         return -2;
     }
 
-    Application app{&game};
+    EventManager eventManager{};
+
+    Application app{game, eventManager};
 
     if(!app.run()){
         MSG_FATAL("Application did not shutdown gracefully!")
