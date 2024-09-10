@@ -2,6 +2,10 @@
 #include "core/event.hpp"
 #include "core/logger.hpp"
 
+InputHandler::InputHandler(EventManager& eventManager) : mEventManager{eventManager}{
+    MSG_TRACE("Inputhandler: %p created", this);
+}
+
 void InputHandler::update(f64 delta_time){
     mInputState.previousKeyBoardState = mInputState.currentKeyBoardState;
     mInputState.currentMouseState = mInputState.currentMouseState;

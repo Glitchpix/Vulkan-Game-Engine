@@ -19,6 +19,10 @@ https://www.youtube.com/watch?v=l14Zkx5OXr4
 TODO: Lambda functions may cause issues with many calls to allocate, investigate this.
 */
 
+MemoryManager::MemoryManager(){
+    MSG_TRACE("MemoryManager: %p created", this);
+}
+
 void MemoryManager::shutdown(){
 // TODO: Destructor instead perhaps?
 }

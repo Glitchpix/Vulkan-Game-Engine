@@ -47,6 +47,8 @@ public:
         EVENT_CODE_WINDOW_RESIZED = 0x08,
     };
 
+    DLL_EXPORT EventManager();
+
     // https://stackoverflow.com/questions/2298242/callback-functions-in-c
     // https://stackoverflow.com/questions/14306497/performance-of-stdfunction-compared-to-raw-function-pointer-and-void-this
     // https://stackoverflow.com/questions/51477423/stdfunction-and-comparison-of-stdfunction

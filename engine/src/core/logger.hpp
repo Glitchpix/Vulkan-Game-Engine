@@ -29,7 +29,7 @@ typedef enum log_level {
 
 class Logger {
     public:
-        static bool init_logging();
+        DLL_EXPORT static bool init_logging();
         static void shutdown_logging();
         template<class ...Args>
         static std::string log_output(log_level level, const char* format, Args&&... args) {

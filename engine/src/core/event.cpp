@@ -2,6 +2,9 @@
 #include <stdexcept>
 #include "core/logger.hpp"
 
+EventManager::EventManager(){
+    MSG_TRACE("EventManager: %p created", this);
+}
 
 bool EventManager::register_event(EventCode code, void* listener, event_callback callback){
     auto emplaceResult = mRegisteredEvents[code].emplace(listener, callback);

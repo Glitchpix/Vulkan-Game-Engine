@@ -147,7 +147,7 @@ public:
         KEYS_MAX_KEYS
     };
 
-    InputHandler(EventManager& eventManager) : mEventManager{eventManager}{};
+    InputHandler(EventManager& eventManager);
 
     void update(f64 delta_time);
 

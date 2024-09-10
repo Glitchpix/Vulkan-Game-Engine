@@ -1,12 +1,13 @@
 #pragma once
 
 #include "defines.hpp"
-#include "event.hpp"
+#include "core/event.hpp"
 #include <memory>
 
 class Platform;
 class Game;
 class InputHandler;
+class Clock;
 
 class Application {
 public:
@@ -24,8 +25,10 @@ private:
 
     bool mRunning{false};
     bool mSuspended{false};
+
+    std::unique_ptr<Clock> mClock;
     std::unique_ptr<Platform> mPlatform;
-    std::unique_ptr<Game> mGame;
+    Game& mGame;
     EventManager& mEventManager;
     std::unique_ptr<InputHandler> mInputHandler;
 

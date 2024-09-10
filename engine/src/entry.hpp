@@ -8,6 +8,7 @@
 extern bool create_game(Game*);
 
 int main() {
+    Logger::init_logging();
 
     MemoryManager memoryManager{};
     
@@ -35,6 +36,8 @@ int main() {
         MSG_FATAL("Game creation failed!");
         return -1;
     }
+
+    MSG_TRACE("Game: %p created", &game);
 
     if(!game.initialize || !game.update || !game.render || !game.on_resize){
         MSG_FATAL("Not all game function pointers are assigned!")

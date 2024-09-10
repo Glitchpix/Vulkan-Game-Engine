@@ -23,9 +23,9 @@ struct WindowsState : Platform::State {
 
 Platform::Platform(InputHandler* inputHandler) : mInputHandler{inputHandler} {
     mState = std::make_unique<WindowsState>();
+    MSG_TRACE("Platform: %p created", this);
 }
 bool Platform::startup(const std::string& application_name, int x, int y, unsigned int width, unsigned int height) {
-
     //TODO Check if there's a better way instead of static_cast
     static_cast<WindowsState*>(mState.get())->h_instance = GetModuleHandleA(0);
 
@@ -105,6 +105,7 @@ bool Platform::startup(const std::string& application_name, int x, int y, unsign
     mClock_frequency = 1.0 / (double)frequency.QuadPart;
     QueryPerformanceCounter(&static_cast<WindowsState*>(mState.get())->mStart_time);
 
+    MSG_TRACE("Platform: %p initialized", this);
     return true;
 }
 void Platform::shutdown() {

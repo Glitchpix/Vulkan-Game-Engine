@@ -1,27 +1,16 @@
 #include "application.hpp"
-#include "core/input.hpp"
 #include "game_types.hpp"
-#include "logger.hpp"
 #include "platform/platform.hpp"
+#include "core/input.hpp"
+#include "core/logger.hpp"
+#include "core/clock.hpp"
 
 Application::Application(Game &game, EventManager &eventManager)
     : mX{game.mX}, mY{game.mY}, mWidth{game.mWidth}, mHeight{game.mHeight},
-      mName{game.mName}, mGame{&game}, mEventManager{eventManager}
+      mName{game.mName}, mGame{game}, mEventManager{eventManager}
 {
     // TODO: Enforce single instance?
-
-    // Initialize systems
-    Logger::init_logging();
-
     mInputHandler = std::make_unique<InputHandler>(mEventManager);
-
-    // TODO: Test code, remove
-    MSG_FATAL("very %s", "bad");
-    MSG_ERROR("an error of %f", 3.4);
-    MSG_WARN("okay");
-    MSG_INFO("good");
-    MSG_DEBUG("detailed");
-    MSG_TRACE("even");
 
     mRunning = true;
     mSuspended = false;
@@ -41,13 +30,17 @@ Application::Application(Game &game, EventManager &eventManager)
         // TODO: Probably throw an exception here too...
     }
 
-    if (!(mGame->initialize()))
+    mClock = std::make_unique<Clock>(mPlatform.get());
+
+    if (!(mGame.initialize()))
     {
         MSG_FATAL("Game failed to initialize!");
         // TODO: Probably throw an exception here too...
     }
+    MSG_TRACE("Game: %p initialized", &mGame);
 
-    mGame->on_resize(mWidth, mHeight);
+    mGame.on_resize(mWidth, mHeight);
+    MSG_TRACE("Application: %p created", this);
 }
 
 Application::~Application() = default;
@@ -64,13 +57,13 @@ bool Application::run()
 
         if (!mSuspended)
         {
-            if (!(mGame->update(0.0f)))
+            if (!(mGame.update(0.0f)))
             {
                 MSG_FATAL("Game update failed! Shutting down.");
                 mRunning = false;
                 break;
             }
-            if (!(mGame->render(0.0f)))
+            if (!(mGame.render(0.0f)))
             {
                 MSG_FATAL("Game render failed! Shutting down.");
                 mRunning = false;

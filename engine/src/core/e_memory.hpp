@@ -12,6 +12,8 @@ public:
         MEMORY_TAG_MAX_TAGS
     };
 
+    DLL_EXPORT MemoryManager();
+
     DLL_EXPORT void initialize();
     DLL_EXPORT void shutdown();
 
@@ -27,11 +29,11 @@ public:
 private:
     struct Stats{
         size_t total_allocated;
-        size_t tagged_allocations[static_cast<int>(tag::MEMORY_TAG_MAX_TAGS)];
+        size_t tagged_allocations[tag::MEMORY_TAG_MAX_TAGS];
     };
     Stats mStats{};
 
-    const char* tag_strings[static_cast<int>(tag::MEMORY_TAG_MAX_TAGS)] = {
+    const char* tag_strings[tag::MEMORY_TAG_MAX_TAGS] = {
         "UNKNOWN",
         "TEST   "
     };
