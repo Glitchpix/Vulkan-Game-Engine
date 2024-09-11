@@ -8,16 +8,27 @@ Clock::Clock(Platform* platform) : mPlatform{platform} {
 
 void Clock::start(){
     mStartTime = mPlatform->getAbsoluteTime();
+    mCurrentTime = mStartTime;
+    mPreviousTime = mCurrentTime;
     mElapsedTime = 0;
 }
 
-void Clock::stop(){
+void Clock::reset(){
     mStartTime = 0;
     mElapsedTime = 0;
+    mCurrentTime = 0;
+    mPreviousTime = 0;
 }
 
 void Clock::update() {
     if (mStartTime > 0) {
-        mElapsedTime = mPlatform->getAbsoluteTime() - mStartTime;
+        mPreviousTime = mCurrentTime;
+        mCurrentTime = mPlatform->getAbsoluteTime();
+        mElapsedTime = mCurrentTime - mStartTime;
     }
+}
+
+// Time since last update() call
+f64 Clock::delta_time() {
+    return mCurrentTime - mPreviousTime;
 }
