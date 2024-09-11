@@ -47,6 +47,10 @@ Application::~Application() = default;
 
 bool Application::run()
 {
+    const float framesPerSecondTarget = 60.0f;
+    f64 targetFrameSeconds = 1.0f / framesPerSecondTarget;
+    mClock->start();
+    f64 deltaTime = 0;
     while (mRunning)
     {
         if (!(mPlatform->pumpMessages()))
@@ -57,23 +61,27 @@ bool Application::run()
 
         if (!mSuspended)
         {
-            if (!(mGame.update(0.0f)))
+            if (!(mGame.update(deltaTime)))
             {
                 MSG_FATAL("Game update failed! Shutting down.");
                 mRunning = false;
                 break;
             }
-            if (!(mGame.render(0.0f)))
+            if (!(mGame.render(deltaTime)))
             {
                 MSG_FATAL("Game render failed! Shutting down.");
                 mRunning = false;
                 break;
             }
+            mClock->update();
+            deltaTime = mClock->delta_time();
+
+            f64 timeLeftAfterTargetFrame = targetFrameSeconds - deltaTime;
+
+            // TODO allow state to sleep here depending on timeLeft
+            mInputHandler->update(deltaTime);
+            MSG_TRACE("Frame and input delta: %f", deltaTime);
         }
-        // TODO: Deltatime
-        mInputHandler->update(0);
-        // TODO: Avoid excessive update speed for now, remove later
-        mPlatform->sleep(50);
     }
 
     mRunning = false;

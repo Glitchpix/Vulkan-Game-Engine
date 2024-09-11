@@ -8,10 +8,10 @@ namespace GameFunctions{
     bool initialize(){
         return true;
     };
-    bool update(float deltaTime){
+    bool update(double deltaTime){
         return true;
     };
-    bool render(float deltaTime){
+    bool render(double deltaTime){
         return true;
     };
     void on_resize(short width, short height){

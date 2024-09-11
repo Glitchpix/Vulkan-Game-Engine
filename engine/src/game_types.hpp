@@ -15,8 +15,8 @@ public:
     Game(short x, short y, short width, short height, char* name) : mX{x}, mY{y}, mWidth{width}, mHeight{height}, mName{name} {};
     
     bool (*initialize)();
-    bool (*update)(float deltaTime);
-    bool (*render)(float deltaTime);
+    bool (*update)(double deltaTime);
+    bool (*render)(double deltaTime);
 
     void (*on_resize)(short width, short height);
 };
