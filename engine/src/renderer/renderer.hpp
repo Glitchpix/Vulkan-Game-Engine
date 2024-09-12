@@ -12,15 +12,18 @@ public:
         RENDERER_BACKEND_TYPE_DIRECTX
     };
 
-    bool (*initialize)(const char* applicationName, Platform* platform);
+    Renderer(Platform* platform, BackendType backendType) : mPlatform{platform}, mBackendType{backendType} {};
 
-    void (*shutdown)();
+    virtual bool initialize(const char* applicationName, Platform* platform) = 0;
 
-    void (*resized)(i16 width, i16 height);
+    virtual void shutdown() = 0;
 
-    bool (*begin_frame)(f64 deltaTime);
-    bool (*end_frame)(f64 deltaTime);
+    virtual void resized(i16 width, i16 height) = 0;
 
-private:
+    virtual bool begin_frame(f64 deltaTime) = 0;
+    virtual bool end_frame(f64 deltaTime) = 0;
+
+protected:
     Platform* mPlatform;
+    BackendType mBackendType;
 };
