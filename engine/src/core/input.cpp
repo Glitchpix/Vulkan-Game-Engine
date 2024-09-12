@@ -18,7 +18,7 @@ void InputHandler::process_key(Key key, bool pressed){
         EventManager::Context eventContext{};
         eventContext.i16[0] = static_cast<i16>(key);
         mEventManager.fire_event(pressed ? EventManager::EventCode::EVENT_CODE_KEY_PRESSED : EventManager::EventCode::EVENT_CODE_KEY_RELEASED,
-                                 0, eventContext);
+                                 this, eventContext);
     }
 }
 
@@ -29,7 +29,7 @@ void InputHandler::process_button(Button button, bool pressed){
         EventManager::Context eventContext{};
         eventContext.i16[0] = static_cast<i16>(button);
         mEventManager.fire_event(pressed ? EventManager::EventCode::EVENT_CODE_MOUSE_BUTTON_PRESSED : EventManager::EventCode::EVENT_CODE_MOUSE_BUTTON_RELEASED,
-                                 0, eventContext);
+                                 this, eventContext);
     }
 }
 void InputHandler::process_mouse_move(i16 x, i16 y){
@@ -41,9 +41,8 @@ void InputHandler::process_mouse_move(i16 x, i16 y){
         eventContext.i16[0] = x;
         eventContext.i16[1] = y;
 
-        MSG_TRACE("Mouse move processed: (%i, %i)", x, y);
         mEventManager.fire_event(EventManager::EventCode::EVENT_CODE_MOUSE_MOVED,
-                                 0, eventContext);
+                                 this, eventContext);
     }
 }
 void InputHandler::process_mouse_wheel(i8 z_delta){
@@ -51,7 +50,7 @@ void InputHandler::process_mouse_wheel(i8 z_delta){
     EventManager::Context eventContext{};
     eventContext.i8[0] = z_delta;
     mEventManager.fire_event(EventManager::EventCode::EVENT_CODE_MOUSE_WHEEL,
-                                0, eventContext);
+                                this, eventContext);
 }
 
 bool InputHandler::is_key_down(Key key) {

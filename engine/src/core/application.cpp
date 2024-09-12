@@ -22,6 +22,7 @@ Application::Application(Game &game, EventManager &eventManager)
                                  this, Application::on_key);
     mEventManager.register_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED,
                                  this, Application::on_key);
+    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_MOUSE_MOVED, this,Application::on_mouse_move); 
 
     mPlatform = std::make_unique<Platform>(mInputHandler.get());
     if (!(mPlatform->startup(mName, mX, mY, mWidth, mHeight)))
@@ -61,6 +62,8 @@ bool Application::run()
 
         if (!mSuspended)
         {
+            mClock->update();
+            
             if (!(mGame.update(deltaTime)))
             {
                 MSG_FATAL("Game update failed! Shutting down.");
@@ -73,13 +76,14 @@ bool Application::run()
                 mRunning = false;
                 break;
             }
+            mInputHandler->update(deltaTime);
+            mPlatform->sleep(1);
             mClock->update();
             deltaTime = mClock->delta_time();
-
             f64 timeLeftAfterTargetFrame = targetFrameSeconds - deltaTime;
 
             // TODO allow state to sleep here depending on timeLeft
-            mInputHandler->update(deltaTime);
+
             MSG_TRACE("Frame and input delta: %f", deltaTime);
         }
     }
@@ -150,6 +154,21 @@ bool Application::on_key(EventManager::EventCode code, void *sender,
         {
             MSG_DEBUG("'%c' Key released", keyCode);
         }
+    }
+    return false;
+}
+
+
+bool Application::on_mouse_move(EventManager::EventCode code, void *sender,
+                         void *listener, EventManager::Context context)
+{
+    //TODO: Remove/Replace some debug information here
+    Application *instance = static_cast<Application*>(listener);
+    if (code == EventManager::EventCode::EVENT_CODE_MOUSE_MOVED)
+    {
+        i16 x = context.i16[0];
+        i16 y = context.i16[1];
+        MSG_TRACE("Mouse move processed: (%i, %i)", x, y);
     }
     return false;
 }
