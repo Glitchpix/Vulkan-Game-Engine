@@ -1,29 +1,21 @@
 #pragma once
 
 #include "defines.hpp"
+#include <memory>
 
+class RendererBackend;
 class Platform;
 
 class Renderer {
 public:
-    enum class BackendType {
-        RENDERER_BACKEND_TYPE_VULKAN,
-        RENDERER_BACKEND_TYPE_OPENGL,
-        RENDERER_BACKEND_TYPE_DIRECTX
+    struct RenderPacket {
+        f64 deltaTime;
     };
+    Renderer(const char* applicationName, Platform* platform);
+    ~Renderer();
 
-    Renderer(Platform* platform, BackendType backendType) : mPlatform{platform}, mBackendType{backendType} {};
-
-    virtual bool initialize(const char* applicationName, Platform* platform) = 0;
-
-    virtual void shutdown() = 0;
-
-    virtual void resized(i16 width, i16 height) = 0;
-
-    virtual bool begin_frame(f64 deltaTime) = 0;
-    virtual bool end_frame(f64 deltaTime) = 0;
-
-protected:
-    Platform* mPlatform;
-    BackendType mBackendType;
+    void on_resize(i16 width, i16 height);
+    bool draw_frame(RenderPacket& renderPacket);
+private:
+    std::unique_ptr<RendererBackend> mRenderer;
 };
