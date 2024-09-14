@@ -8,6 +8,7 @@ class Platform;
 class Game;
 class InputHandler;
 class Clock;
+class Renderer;
 
 class Application {
 public:
@@ -31,6 +32,7 @@ private:
     Game& mGame;
     EventManager& mEventManager;
     std::unique_ptr<InputHandler> mInputHandler;
+    std::unique_ptr<Renderer> mRenderer;
 
     static bool on_event(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
     static bool on_key(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);

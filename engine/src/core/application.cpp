@@ -4,6 +4,7 @@
 #include "core/input.hpp"
 #include "core/logger.hpp"
 #include "core/clock.hpp"
+#include "renderer/renderer.hpp"
 
 Application::Application(Game &game, EventManager &eventManager)
     : mX{game.mX}, mY{game.mY}, mWidth{game.mWidth}, mHeight{game.mHeight},
@@ -29,9 +30,12 @@ Application::Application(Game &game, EventManager &eventManager)
     {
         MSG_FATAL("Failed to start platform window!");
         // TODO: Probably throw an exception here too...
+        // Move these into functions to lessen error checking here
     }
 
     mClock = std::make_unique<Clock>(mPlatform.get());
+
+    mRenderer = std::make_unique<Renderer>(game.mName, mPlatform.get());
 
     if (!(mGame.initialize()))
     {
@@ -63,6 +67,7 @@ bool Application::run()
         if (!mSuspended)
         {
             mClock->update();
+            // START OF FRAME
             
             if (!(mGame.update(deltaTime)))
             {
@@ -76,14 +81,18 @@ bool Application::run()
                 mRunning = false;
                 break;
             }
+
+            Renderer::RenderPacket packet{};
+            packet.deltaTime = deltaTime;
+            mRenderer->draw_frame(packet);
+
+            // END OF FRAME
             mInputHandler->update(deltaTime);
-            mPlatform->sleep(1);
             mClock->update();
             deltaTime = mClock->delta_time();
             f64 timeLeftAfterTargetFrame = targetFrameSeconds - deltaTime;
-
             // TODO allow state to sleep here depending on timeLeft
-
+            mPlatform->sleep(20);
             MSG_TRACE("Frame and input delta: %f", deltaTime);
         }
     }
