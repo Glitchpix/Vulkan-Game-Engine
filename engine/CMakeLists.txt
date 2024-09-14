@@ -7,8 +7,11 @@ add_library(Engine_lib SHARED src/core/logger.cpp src/core/logger.hpp
                               src/core/event.hpp src/core/event.cpp
                               src/core/input.hpp src/core/input.cpp
                               src/core/clock.hpp src/core/clock.cpp
-                              src/renderer/renderer.hpp
+                              src/renderer/renderer.hpp src/renderer/renderer.cpp
+                              src/renderer/renderer_backend.hpp
                               src/renderer/vulkan/vulkan_backend.hpp src/renderer/vulkan/vulkan_backend.cpp)
 target_include_directories(Engine_lib PRIVATE src/)
+
 find_package(Vulkan REQUIRED)
 target_include_directories(Engine_lib PRIVATE ${Vulkan_INCLUDE_DIR})
+target_link_libraries(Engine_lib PRIVATE ${Vulkan_LIBRARIES})
