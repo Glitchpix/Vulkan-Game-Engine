@@ -1,14 +1,16 @@
 #pragma once
 
-#include "renderer/renderer.hpp"
+#include "renderer/renderer_backend.hpp"
 #include "defines.hpp"
 #include <vulkan/vulkan.h>
+#include "core/logger.hpp"
 
-class VulkanRenderer : public Renderer {
+class VulkanRenderer : public RendererBackend {
 public:
-    VulkanRenderer(Platform* platform) : Renderer(platform, Renderer::BackendType::RENDERER_BACKEND_TYPE_VULKAN) {};
+    VulkanRenderer(Platform* platform);
+    ~VulkanRenderer() = default;
 
-    bool initialize(const char* applicationName, Platform* platform) override;
+    bool initialize(const char* applicationName) override;
 
     void shutdown() override;
 
