@@ -39,7 +39,7 @@ int main() {
 
     MSG_TRACE("Game: %p created", &game);
 
-    if(!game.initialize || !game.update || !game.render || !game.on_resize){
+    if((game.initialize == nullptr) || (game.update == nullptr) || (game.render == nullptr) || (game.on_resize == nullptr)){
         MSG_FATAL("Not all game function pointers are assigned!")
         return -2;
     }

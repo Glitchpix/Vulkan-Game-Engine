@@ -10,7 +10,7 @@ public:
     void start();
     void reset();
     void update();
-    f64 delta_time();
+    [[nodiscard]] f64 delta_time() const;
 private:
     f64 mStartTime{0};
     f64 mElapsedTime{0};

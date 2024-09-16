@@ -1,8 +1,8 @@
 #include "e_memory.hpp"
 #include "logger.hpp"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 
 // Idea: shared or unique ptr and make use of size_of, handle delete with custom deleter
 /*
@@ -27,18 +27,18 @@ void MemoryManager::shutdown(){
 // TODO: Destructor instead perhaps?
 }
 
-std::shared_ptr<void> MemoryManager::allocate(size_t size, tag tag){
+auto MemoryManager::allocate(const size_t size, const tag tag) -> std::shared_ptr<void> {
     if (tag == tag::MEMORY_TAG_UNKNOWN) {
         MSG_WARN("Allocate called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
     mStats.total_allocated += size;
     mStats.tagged_allocations[tag] += size;
 
-    std::shared_ptr<void> block(malloc(size), [=](void* block) {MemoryManager::free_block(block, size, tag);});
+    std::shared_ptr<void> block(malloc(size), [this, size, tag](void* block) {this->free_block(block, size, tag);});
     return block;
 }
 
-void MemoryManager::free_block(void* block, size_t size, tag tag){
+void MemoryManager::free_block(void* block, const size_t size, const tag tag){
     if (tag == tag::MEMORY_TAG_UNKNOWN) {
         MSG_WARN("Free called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
@@ -60,7 +60,7 @@ char* MemoryManager::get_usage(){
     size_t offset = strlen(buffer);
     for (size_t i = 0; i < MEMORY_TAG_MAX_TAGS; ++i){
         char unit[4] = "XiB";
-        float amount = 1.0f;
+        float amount = 1.0F;
         if (mStats.tagged_allocations[i] >= gibibyte){
             unit[0] = 'G';
             amount = mStats.tagged_allocations[i] / static_cast<float>(gibibyte);

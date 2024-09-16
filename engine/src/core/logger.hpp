@@ -2,10 +2,7 @@
 #include "defines.hpp"
 #include <platform/platform.hpp>
 #include <string>
-#include <iostream>
-#include <stdio.h>
-#include <stdarg.h>
-#include <cstdarg>
+#include <cstdio>
 #include <sstream>
 
 #define LOG_WARN_ENABLED 1
@@ -18,21 +15,21 @@
 #define LOG_TRACE_ENABLED 0
 #endif
 
-typedef enum log_level {
+enum LogLevel {
     LOG_LEVEL_FATAL = 0,
     LOG_LEVEL_ERROR = 1,
     LOG_LEVEL_WARN = 2,
     LOG_LEVEL_INFO = 3,
     LOG_LEVEL_DEBUG = 4,
     LOG_LEVEL_TRACE = 5
-} log_level;
+};
 
 class Logger {
     public:
         DLL_EXPORT static bool init_logging();
         static void shutdown_logging();
         template<class ...Args>
-        static std::string log_output(log_level level, const char* format, Args&&... args) {
+        static std::string log_output(LogLevel level, const char* format, Args&&... args) {
             const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
             bool is_error = level < LOG_LEVEL_WARN;
 

@@ -22,7 +22,7 @@ private:
     short mWidth{0};
     short mHeight{0};
 
-    char* mName{""};
+    char* mName{};
 
     bool mRunning{false};
     bool mSuspended{false};

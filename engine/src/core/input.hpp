@@ -168,8 +168,8 @@ public:
     DLL_EXPORT bool is_button_up(Button button);
     DLL_EXPORT bool was_button_down(Button button);
     DLL_EXPORT bool was_button_up(Button button);
-    DLL_EXPORT void get_mouse_position(i32& x, i32& y);
-    DLL_EXPORT void get_previous_mouse_position(i32& x, i32& y);
+    DLL_EXPORT void get_mouse_position(i32& x, i32& y) const;
+    DLL_EXPORT void get_previous_mouse_position(i32& x, i32& y) const;
 
 private:
     struct KeyboardState {

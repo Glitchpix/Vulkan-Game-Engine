@@ -13,7 +13,7 @@ public:
     };
 
     RendererBackend(Platform* platform, BackendType backendType) : mPlatform{platform}, mBackendType{backendType} {};
-    ~RendererBackend() = default;
+    virtual ~RendererBackend() = default;
 
     virtual bool initialize(const char* applicationName) = 0;
 

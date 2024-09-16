@@ -21,7 +21,7 @@ bool VulkanRenderer::initialize(const char *applicationName)
 
     int numExtensions = 0; // TODO: get_required_extensions(); 
     createInfo.enabledExtensionCount = numExtensions;
-    createInfo.ppEnabledExtensionNames = 0;
+    createInfo.ppEnabledExtensionNames = nullptr;
     createInfo.enabledLayerCount = 0;
     createInfo.pNext = nullptr;
 

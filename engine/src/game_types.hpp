@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 
 class Game {
 public:
@@ -8,7 +7,7 @@ public:
     short mWidth{0};
     short mHeight{0};
 
-    char* mName{""};
+    char* mName{};
 
 
     Game() = default;

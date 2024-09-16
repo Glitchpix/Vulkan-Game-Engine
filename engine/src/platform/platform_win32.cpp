@@ -10,54 +10,54 @@
 
 #include <windows.h>
 #include <windowsx.h>  // param input extraction
-#include <stdlib.h>
+#include <cstdlib>
 
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 struct WindowsState : Platform::State {
-    HINSTANCE h_instance;
-    HWND hwnd;
-    LARGE_INTEGER mStart_time;
+    HINSTANCE h_instance{};
+    HWND hwnd{};
+    LARGE_INTEGER mStart_time{};
 };
 
 Platform::Platform(InputHandler* inputHandler) : mInputHandler{inputHandler} {
     mState = std::make_unique<WindowsState>();
     MSG_TRACE("Platform: %p created", this);
 }
-bool Platform::startup(const std::string& application_name, int x, int y, unsigned int width, unsigned int height) {
+bool Platform::startup(const std::string& application_name, int x, int y, int width, int height) {
     //TODO Check if there's a better way instead of static_cast
-    static_cast<WindowsState*>(mState.get())->h_instance = GetModuleHandleA(0);
+    dynamic_cast<WindowsState*>(mState.get())->h_instance = GetModuleHandleA(0);
 
     // Setup and register window class.
-    HICON icon = LoadIcon(static_cast<WindowsState*>(mState.get())->h_instance, IDI_APPLICATION);
+    HICON icon = LoadIcon(dynamic_cast<WindowsState*>(mState.get())->h_instance, IDI_APPLICATION);
     WNDCLASSA wc;
     memset(&wc, 0, sizeof(wc));
     wc.style = CS_DBLCLKS;  // Get double-clicks
     wc.lpfnWndProc = win32_process_message;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
-    wc.hInstance = static_cast<WindowsState*>(mState.get())->h_instance;
+    wc.hInstance = dynamic_cast<WindowsState*>(mState.get())->h_instance;
     wc.hIcon = icon;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);  // NULL; // Manage the cursor manually
-    wc.hbrBackground = NULL;                   // Transparent
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);  // NULL; // Manage the cursor manually
+    wc.hbrBackground = nullptr;                   // Transparent
     wc.lpszClassName = "engine_window_class";
 
     if (!RegisterClassA(&wc)) {
-        MessageBoxA(0, "Window registration failed", "Error", MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxA(nullptr, "Window registration failed", "Error", MB_ICONEXCLAMATION | MB_OK);
         return FALSE;
     }
 
     // Create window
-    unsigned int client_x = x;
-    unsigned int client_y = y;
-    unsigned int client_width = width;
-    unsigned int client_height = height;
+    int client_x = x;
+    int client_y = y;
+    int client_width = width;
+    int client_height = height;
 
-    unsigned int window_x = client_x;
-    unsigned int window_y = client_y;
-    unsigned int window_width = client_width;
-    unsigned int window_height = client_height;
+    int window_x = client_x;
+    int window_y = client_y;
+    int window_width = client_width;
+    int window_height = client_height;
 
     unsigned int window_style = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
     unsigned int window_ex_style = WS_EX_APPWINDOW;
@@ -81,43 +81,43 @@ bool Platform::startup(const std::string& application_name, int x, int y, unsign
     HWND handle = CreateWindowExA(
         window_ex_style, "engine_window_class", application_name.c_str(),
         window_style, window_x, window_y, window_width, window_height,
-        0, 0, static_cast<WindowsState*>(mState.get())->h_instance, mInputHandler);
+        nullptr, nullptr, dynamic_cast<WindowsState*>(mState.get())->h_instance, mInputHandler);
 
     if (handle == nullptr) {
-        MessageBoxA(NULL, "Window creation failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxA(nullptr, "Window creation failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
 
         MSG_FATAL("Window creation failed!");
         return false;
     }
 
-    static_cast<WindowsState*>(mState.get())->hwnd = handle;
+    dynamic_cast<WindowsState*>(mState.get())->hwnd = handle;
 
     // Show the window
     bool should_activate = true;  // TODO: if the window should not accept input, this should be false.
     int show_window_command_flags = should_activate ? SW_SHOW : SW_SHOWNOACTIVATE;
     // If initially minimized, use SW_MINIMIZE : SW_SHOWMINNOACTIVE;
     // If initially maximized, use SW_SHOWMAXIMIZED : SW_MAXIMIZE
-    ShowWindow(static_cast<WindowsState*>(mState.get())->hwnd, show_window_command_flags);
+    ShowWindow(dynamic_cast<WindowsState*>(mState.get())->hwnd, show_window_command_flags);
 
     // Clock setup
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
     mClock_frequency = 1.0 / (double)frequency.QuadPart;
-    QueryPerformanceCounter(&static_cast<WindowsState*>(mState.get())->mStart_time);
+    QueryPerformanceCounter(&dynamic_cast<WindowsState*>(mState.get())->mStart_time);
 
     MSG_TRACE("Platform: %p initialized", this);
     return true;
 }
 void Platform::shutdown() {
-    if (static_cast<WindowsState*>(mState.get())->hwnd) {
-        DestroyWindow(static_cast<WindowsState*>(mState.get())->hwnd);
-        static_cast<WindowsState*>(mState.get())->hwnd = nullptr;
+    if (dynamic_cast<WindowsState*>(mState.get())->hwnd != nullptr) {
+        DestroyWindow(dynamic_cast<WindowsState*>(mState.get())->hwnd);
+        dynamic_cast<WindowsState*>(mState.get())->hwnd = nullptr;
     }
 }
 
 bool Platform::pumpMessages() {
     MSG message;
-    while(PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
+    while(PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE) != 0) {
         TranslateMessage(&message);
         DispatchMessageA(&message);
     }
@@ -145,11 +145,11 @@ void Platform::consoleWriteError(const std::string& message, unsigned char colou
 
     OutputDebugStringA(message.c_str());
     size_t length = strlen(message.c_str());
-    LPDWORD number_written = 0;
+    LPDWORD number_written = nullptr;
     WriteConsoleA(console_handle, message.c_str(), static_cast<DWORD>(length), number_written, 0);
 }
 
-double Platform::getAbsoluteTime() {
+double Platform::getAbsoluteTime() const{
     LARGE_INTEGER now_time;
     QueryPerformanceCounter(&now_time);
     return (double)now_time.QuadPart * mClock_frequency;
@@ -161,10 +161,10 @@ void Platform::sleep(std::size_t ms) {
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
     // Get pointer to platform instance of input handler
-    InputHandler* inputHandler;
+    InputHandler* inputHandler = nullptr;
     if (msg == WM_CREATE)
     {
-        CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+        auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         inputHandler = reinterpret_cast<InputHandler*>(pCreate->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)inputHandler);
     }
@@ -194,7 +194,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
         case WM_KEYUP:
         case WM_SYSKEYUP: {
             bool pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
-            InputHandler::Key key = static_cast<InputHandler::Key>(wParam);
+            auto key = static_cast<InputHandler::Key>(wParam);
             inputHandler->process_key(key, pressed);
         } break;
         case WM_MOUSEMOVE: {

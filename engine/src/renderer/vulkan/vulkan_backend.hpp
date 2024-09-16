@@ -8,7 +8,7 @@
 class VulkanRenderer : public RendererBackend {
 public:
     VulkanRenderer(Platform* platform);
-    ~VulkanRenderer() = default;
+    virtual ~VulkanRenderer() = default;
 
     bool initialize(const char* applicationName) override;
 
@@ -19,5 +19,5 @@ public:
     bool begin_frame(f64 deltaTime) override;
     bool end_frame(f64 deltaTime) override;
 private:
-    VkInstance mInstance;
+    VkInstance mInstance{nullptr};
 };

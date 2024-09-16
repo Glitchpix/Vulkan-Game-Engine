@@ -8,13 +8,10 @@
 
 Application::Application(Game &game, EventManager &eventManager)
     : mX{game.mX}, mY{game.mY}, mWidth{game.mWidth}, mHeight{game.mHeight},
-      mName{game.mName}, mGame{game}, mEventManager{eventManager}
+      mName{game.mName}, mGame{game}, mEventManager{eventManager}, mRunning{true}
 {
     // TODO: Enforce single instance?
     mInputHandler = std::make_unique<InputHandler>(mEventManager);
-
-    mRunning = true;
-    mSuspended = false;
 
     mEventManager.register_event(
         EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, this,
@@ -52,8 +49,8 @@ Application::~Application() = default;
 
 bool Application::run()
 {
-    const float framesPerSecondTarget = 60.0f;
-    f64 targetFrameSeconds = 1.0f / framesPerSecondTarget;
+    const float framesPerSecondTarget = 60.0F;
+    f64 targetFrameSeconds = 1.0F / framesPerSecondTarget;
     mClock->start();
     f64 deltaTime = 0;
     while (mRunning)
@@ -115,7 +112,7 @@ bool Application::run()
 bool Application::on_event(EventManager::EventCode code, void *sender,
                            void *listener, EventManager::Context context)
 {
-    Application *instance = static_cast<Application*>(listener);
+    auto* instance = static_cast<Application*>(listener);
     switch (code)
     {
     case EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT:
@@ -123,6 +120,8 @@ bool Application::on_event(EventManager::EventCode code, void *sender,
             "EVENT_CODE_APPLICATION_QUIT recieved, shutting down application");
         instance->mRunning = false;
         return true;
+    default:
+        break;
     }
     return false;
 }
@@ -131,10 +130,10 @@ bool Application::on_key(EventManager::EventCode code, void *sender,
                          void *listener, EventManager::Context context)
 {
     //TODO: Remove/Replace some debug information here
-    Application *instance = static_cast<Application*>(listener);
+    auto* instance = static_cast<Application*>(listener);
     if (code == EventManager::EventCode::EVENT_CODE_KEY_PRESSED)
     {
-        InputHandler::Key keyCode = static_cast<InputHandler::Key>(context.i16[0]);
+        auto keyCode = static_cast<InputHandler::Key>(context.i16[0]);
         if (keyCode == InputHandler::Key::KEY_ESCAPE)
         {
             EventManager::Context quitContext{};
@@ -143,7 +142,7 @@ bool Application::on_key(EventManager::EventCode code, void *sender,
                 quitContext);
             return true;
         }
-        else if (keyCode == InputHandler::Key::KEY_A)
+        if (keyCode == InputHandler::Key::KEY_A)
         {
             MSG_DEBUG("Explicit 'A' Key pressed");
         }
@@ -154,7 +153,7 @@ bool Application::on_key(EventManager::EventCode code, void *sender,
     }
     else if (code == EventManager::EventCode::EVENT_CODE_KEY_RELEASED)
     {
-        InputHandler::Key keyCode = static_cast<InputHandler::Key>(context.i16[0]);
+        auto keyCode = static_cast<InputHandler::Key>(context.i16[0]);
         if (keyCode == InputHandler::Key::KEY_B)
         {
             MSG_DEBUG("Explicit 'B' Key released");
@@ -172,7 +171,7 @@ bool Application::on_mouse_move(EventManager::EventCode code, void *sender,
                          void *listener, EventManager::Context context)
 {
     //TODO: Remove/Replace some debug information here
-    Application *instance = static_cast<Application*>(listener);
+    auto* instance = static_cast<Application*>(listener);
     if (code == EventManager::EventCode::EVENT_CODE_MOUSE_MOVED)
     {
         i16 x = context.i16[0];

@@ -54,7 +54,7 @@ void InputHandler::process_mouse_wheel(i8 z_delta){
 }
 
 bool InputHandler::is_key_down(Key key) {
-    return mInputState.currentKeyBoardState.keys[key] == true;
+    return mInputState.currentKeyBoardState.keys[key];
 }
 
 bool InputHandler::is_key_up(Key key){
@@ -85,12 +85,12 @@ bool InputHandler::was_button_up(Button button){
     return !was_button_down(button);
 }
 
-void InputHandler::get_mouse_position(i32& x, i32& y){
+void InputHandler::get_mouse_position(i32& x, i32& y) const{
     x = mInputState.currentMouseState.x;
     y = mInputState.currentMouseState.y;
 }
 
-void InputHandler::get_previous_mouse_position(i32& x, i32& y){
+void InputHandler::get_previous_mouse_position(i32& x, i32& y) const{
     x = mInputState.previousMouseState.x;
     y = mInputState.previousMouseState.y;
 }

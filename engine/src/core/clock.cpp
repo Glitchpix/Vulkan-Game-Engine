@@ -29,6 +29,6 @@ void Clock::update() {
 }
 
 // Time since last update() call
-f64 Clock::delta_time() {
+f64 Clock::delta_time() const {
     return mCurrentTime - mPreviousTime;
 }
