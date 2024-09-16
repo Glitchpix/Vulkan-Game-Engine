@@ -3,6 +3,7 @@
 #include "defines.hpp"
 #include <string>
 #include <memory>
+#include <vector>
 
 class InputHandler;
 class Platform {
@@ -21,6 +22,7 @@ public:
     DLL_EXPORT static void consoleWriteError(const std::string& message, unsigned char colour);
 
     [[nodiscard]] double getAbsoluteTime() const;
+    std::vector<const char*> get_required_extensions();
     static void sleep(std::size_t ms);
 private:
     std::unique_ptr<State> mState;

@@ -155,6 +155,11 @@ double Platform::getAbsoluteTime() const{
     return (double)now_time.QuadPart * mClock_frequency;
 }
 
+std::vector<const char*> Platform::get_required_extensions() {
+    std::vector<const char*> requiredExtensions{"VK_KHR_win32_surface"};
+    return requiredExtensions;
+}
+
 void Platform::sleep(std::size_t ms) {
     Sleep(static_cast<DWORD>(ms));
 }
