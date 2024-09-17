@@ -13,12 +13,8 @@
     }                  
 class VulkanRenderer : public RendererBackend {
 public:
-    VulkanRenderer(Platform* platform);
-    virtual ~VulkanRenderer() = default;
-
-    bool initialize(const char* applicationName) override;
-
-    void shutdown() override;
+    VulkanRenderer(const char* applicationName, Platform* platform);
+    ~VulkanRenderer() override;
 
     void resized(i16 width, i16 height) override;
 
@@ -26,9 +22,22 @@ public:
     bool end_frame(f64 deltaTime) override;
 private:
     VkInstance mInstance{nullptr};
+    VkDebugUtilsMessengerEXT mDebugMessenger{nullptr};
     bool mEnableValidationLayers{false};
     std::vector<const char*> mValidationLayers;
     
     std::vector<const char*> get_required_extensions();
     bool check_validation_layer_support();
+    static void populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    void setup_debug_messenger();
+
+    static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
+                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                      const VkAllocationCallbacks* pAllocator,
+                                      VkDebugUtilsMessengerEXT* pDebugMessenger);
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData);
 };

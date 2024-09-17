@@ -5,11 +5,7 @@
 
 Renderer::Renderer(const char *applicationName, Platform *platform) {
     //TODO: make renderer configurable
-    mRenderer = std::make_unique<VulkanRenderer>(VulkanRenderer(platform));
-    if (!mRenderer->initialize(applicationName)){
-        MSG_FATAL("Renderer failed creation!");
-        //TODO: Throw here
-    }
+    mRenderer = std::make_unique<VulkanRenderer>(applicationName, platform);
     MSG_TRACE("Renderer: %p created", this);
 }
 

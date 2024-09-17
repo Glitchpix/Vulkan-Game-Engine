@@ -15,10 +15,6 @@ public:
     RendererBackend(Platform* platform, BackendType backendType) : mPlatform{platform}, mBackendType{backendType} {};
     virtual ~RendererBackend() = default;
 
-    virtual bool initialize(const char* applicationName) = 0;
-
-    virtual void shutdown() = 0;
-
     virtual void resized(i16 width, i16 height) = 0;
 
     virtual bool begin_frame(f64 deltaTime) = 0;
