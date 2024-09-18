@@ -1,9 +1,12 @@
 #include "vulkan_backend.hpp"
 #include "core/logger.hpp"
-#include "vulkan/vulkan_core.h"
-#include <cstddef>
+#include "vulkan_device.hpp"
 
-VulkanRenderer::VulkanRenderer(const char* applicationName, Platform *platform) : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN) {
+#include <cstddef>
+#include <vulkan/vulkan_core.h>
+
+
+VulkanRenderer::VulkanRenderer(const char* applicationName, Platform* platform) : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN) {
 #if defined(_DEBUG)
     mEnableValidationLayers = true;
 #endif
@@ -20,17 +23,17 @@ VulkanRenderer::VulkanRenderer(const char* applicationName, Platform *platform) 
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    const auto requiredExtensions = get_required_extensions(); 
+    const auto requiredExtensions = get_required_extensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
-    
+
     MSG_DEBUG("[Vulkan] %i validation layer", mEnableValidationLayers);
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-    if(mEnableValidationLayers) {
+    if (mEnableValidationLayers) {
         mValidationLayers.emplace_back("VK_LAYER_KHRONOS_validation");
 
         // Verify validation layers can be used
-        if (!check_validation_layer_support()){
+        if (!check_validation_layer_support()) {
             MSG_ERROR("[Vulkan] Support for all validation layers failed, disabling validation support.");
             mEnableValidationLayers = false;
             mValidationLayers.clear();
@@ -38,30 +41,34 @@ VulkanRenderer::VulkanRenderer(const char* applicationName, Platform *platform) 
             MSG_INFO("[Vulkan] All required validation layers are supported");
         }
         populate_debug_messenger_create_info(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
     }
     size_t requiredValidationLayerCount = mValidationLayers.size();
 
     createInfo.enabledLayerCount = requiredValidationLayerCount;
-    createInfo.ppEnabledLayerNames = mValidationLayers.data(); // TODO: Check this, might be unsafe
+    createInfo.ppEnabledLayerNames = mValidationLayers.data();  // TODO: Check this, might be unsafe
     createInfo.pNext = nullptr;
 
     //TODO: custom allocator
     VkResult result = vkCreateInstance(&createInfo, nullptr, &mInstance);
 
-    if(result != VK_SUCCESS){
+    if (result != VK_SUCCESS) {
         MSG_FATAL("Failed to create Vulkan renderer: %p", this);
         throw std::runtime_error("");
     }
     setup_debug_messenger();
+
+    // Device setup
+    mDevice = VulkanDevice();
+
     MSG_TRACE("Vulkan Renderer: %p initialized", this);
 };
 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: %p destructor called", this)
-    if(mEnableValidationLayers){
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(mInstance,
-                                                    "vkDestroyDebugUtilsMessengerEXT");
+    if (mEnableValidationLayers) {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance,
+                                                                               "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
             func(mInstance, mDebugMessenger, nullptr);
         }
@@ -69,11 +76,11 @@ VulkanRenderer::~VulkanRenderer() {
     vkDestroyInstance(mInstance, nullptr);
 }
 
-void VulkanRenderer::resized(i16 width, i16 height){
+void VulkanRenderer::resized(i16 width, i16 height) {
     //TODO
 }
 
-bool VulkanRenderer::begin_frame(f64 deltaTime){
+bool VulkanRenderer::begin_frame(f64 deltaTime) {
     //TODO
     return true;
 }
@@ -82,10 +89,10 @@ bool VulkanRenderer::end_frame(f64 deltaTime) {
     return true;
 }
 
-std::vector<const char*> VulkanRenderer::get_required_extensions(){  
+std::vector<const char*> VulkanRenderer::get_required_extensions() {
     std::vector<const char*> extensions{};
 
-    extensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME); // Generic surface
+    extensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);  // Generic surface
 
     std::vector<const char*> requiredPlatformExtensions = mPlatform->get_required_extensions();
 
@@ -93,7 +100,7 @@ std::vector<const char*> VulkanRenderer::get_required_extensions(){
         extensions.emplace_back(extension);
     }
 
-    if (mEnableValidationLayers){
+    if (mEnableValidationLayers) {
         extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         MSG_DEBUG("[Vulkan] Required extensions:");
         for (const auto& extension : extensions) {
@@ -104,7 +111,7 @@ std::vector<const char*> VulkanRenderer::get_required_extensions(){
     return extensions;
 }
 
-bool VulkanRenderer::check_validation_layer_support(){
+bool VulkanRenderer::check_validation_layer_support() {
     uint32_t layerCount{};
     VK_CHECK(vkEnumerateInstanceLayerProperties(&layerCount, nullptr));
 
@@ -112,18 +119,18 @@ bool VulkanRenderer::check_validation_layer_support(){
     VK_CHECK(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data()));
 
     MSG_TRACE("[Vulkan] Verifying validation layers...");
-    for (const char* layerName : mValidationLayers){
+    for (const char* layerName : mValidationLayers) {
         MSG_TRACE("[Vulkan] Checking validation layer: %s", layerName);
         bool layerFound = false;
-        for (const auto& layerProperties : availableLayers){
-            if (strcmp(layerName, layerProperties.layerName) == 0){
+        for (const auto& layerProperties : availableLayers) {
+            if (strcmp(layerName, layerProperties.layerName) == 0) {
                 layerFound = true;
                 MSG_TRACE("[Vulkan] Found validation layer: %s", layerName);
                 break;
             }
         }
 
-        if (!layerFound){
+        if (!layerFound) {
             MSG_WARN("[Vulkan] Missing validation layer: %s", layerName);
             return false;
         }
@@ -136,17 +143,17 @@ void VulkanRenderer::populate_debug_messenger_create_info(VkDebugUtilsMessengerC
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debug_callback;
 }
 
-void VulkanRenderer::setup_debug_messenger(){
+void VulkanRenderer::setup_debug_messenger() {
     if (!mEnableValidationLayers) {
-         return;
+        return;
     }
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
@@ -161,7 +168,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData) {
-    
+
     switch (messageSeverity) {
         default:
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
@@ -182,13 +189,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(
 }
 
 VkResult VulkanRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance,
-                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                      const VkAllocationCallbacks* pAllocator,
-                                      VkDebugUtilsMessengerEXT* pDebugMessenger){
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-                                                    "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr){
+                                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                                      const VkAllocationCallbacks* pAllocator,
+                                                      VkDebugUtilsMessengerEXT* pDebugMessenger) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance,
+                                                                          "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    }  
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
