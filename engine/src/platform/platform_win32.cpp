@@ -1,25 +1,14 @@
-#include "platform/platform.hpp"
-
-#define ENGINE_PLATFORM_WINDOWS 1
-
+#include "platform.hpp"
 #if ENGINE_PLATFORM_WINDOWS
-
 #define NOMINMAX
-#include "core/logger.hpp"
 #include "core/input.hpp"
+#include "core/logger.hpp"
 
-#include <windows.h>
-#include <windowsx.h>  // param input extraction
+#include "platform_win32.hpp"
+#include <cstddef>
 #include <cstdlib>
+#include <windowsx.h>  // param input extraction
 
-
-LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-struct WindowsState : Platform::State {
-    HINSTANCE h_instance{};
-    HWND hwnd{};
-    LARGE_INTEGER mStart_time{};
-};
 
 Platform::Platform(InputHandler* inputHandler) : mInputHandler{inputHandler} {
     mState = std::make_unique<WindowsState>();
@@ -40,7 +29,7 @@ bool Platform::startup(const std::string& application_name, int x, int y, int wi
     wc.hInstance = dynamic_cast<WindowsState*>(mState.get())->h_instance;
     wc.hIcon = icon;
     wc.hCursor = LoadCursor(nullptr, IDC_ARROW);  // NULL; // Manage the cursor manually
-    wc.hbrBackground = nullptr;                   // Transparent
+    wc.hbrBackground = nullptr;  // Transparent
     wc.lpszClassName = "engine_window_class";
 
     if (!RegisterClassA(&wc)) {
@@ -117,7 +106,7 @@ void Platform::shutdown() {
 
 bool Platform::pumpMessages() {
     MSG message;
-    while(PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE) != 0) {
+    while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE) != 0) {
         TranslateMessage(&message);
         DispatchMessageA(&message);
     }
@@ -149,32 +138,28 @@ void Platform::consoleWriteError(const std::string& message, unsigned char colou
     WriteConsoleA(console_handle, message.c_str(), static_cast<DWORD>(length), number_written, 0);
 }
 
-double Platform::getAbsoluteTime() const{
+double Platform::getAbsoluteTime() const {
     LARGE_INTEGER now_time;
     QueryPerformanceCounter(&now_time);
     return (double)now_time.QuadPart * mClock_frequency;
 }
 
-std::vector<const char*> Platform::get_required_extensions() {
-    std::vector<const char*> requiredExtensions{"VK_KHR_win32_surface"};
-    return requiredExtensions;
+Platform::State* Platform::getState() {
+    return mState.get();
 }
 
 void Platform::sleep(std::size_t ms) {
     Sleep(static_cast<DWORD>(ms));
 }
 
-LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
+LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     // Get pointer to platform instance of input handler
     InputHandler* inputHandler = nullptr;
-    if (msg == WM_CREATE)
-    {
+    if (msg == WM_CREATE) {
         auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         inputHandler = reinterpret_cast<InputHandler*>(pCreate->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)inputHandler);
-    }
-    else
-    {
+    } else {
         LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
         inputHandler = reinterpret_cast<InputHandler*>(ptr);
     }
@@ -214,7 +199,6 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
                 z_delta = (z_delta < 0) ? -1 : 1;
                 inputHandler->process_mouse_wheel(z_delta);
             }
-            
         } break;
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
@@ -236,7 +220,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
                 case WM_MBUTTONDOWN:
                 case WM_MBUTTONUP:
                     button = InputHandler::Button::BUTTON_MIDDLE;
-                    break;                    
+                    break;
             }
             inputHandler->process_button(button, pressed);
         } break;

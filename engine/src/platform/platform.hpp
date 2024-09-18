@@ -1,20 +1,23 @@
 #pragma once
 
+#define ENGINE_PLATFORM_WINDOWS 1
+
 #include "defines.hpp"
-#include <string>
 #include <memory>
-#include <vector>
+#include <string>
 
 class InputHandler;
 class Platform {
 public:
-    struct State {virtual ~State() = default;};
+    struct State {
+        virtual ~State() = default;
+    };
 
     Platform(InputHandler* InputHandler);
     ~Platform() = default;
 
     bool startup(const std::string& application_name,
-                         int x, int y, int width, int height);
+                 int x, int y, int width, int height);
     void shutdown();
     bool pumpMessages();
 
@@ -22,8 +25,9 @@ public:
     DLL_EXPORT static void consoleWriteError(const std::string& message, unsigned char colour);
 
     [[nodiscard]] double getAbsoluteTime() const;
-    std::vector<const char*> get_required_extensions();
+    [[nodiscard]] State* getState();
     static void sleep(std::size_t ms);
+
 private:
     std::unique_ptr<State> mState;
     double mClock_frequency{};
