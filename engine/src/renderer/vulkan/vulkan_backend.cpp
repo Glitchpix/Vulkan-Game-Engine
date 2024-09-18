@@ -1,8 +1,10 @@
 #include "vulkan_backend.hpp"
 #include "core/logger.hpp"
 #include "vulkan_device.hpp"
+#include "vulkan_platform.hpp"
 
 #include <cstddef>
+#include <memory>
 #include <vulkan/vulkan_core.h>
 
 
@@ -59,7 +61,7 @@ VulkanRenderer::VulkanRenderer(const char* applicationName, Platform* platform) 
     setup_debug_messenger();
 
     // Device setup
-    mDevice = VulkanDevice();
+    mDevice = std::make_unique<VulkanDevice>(mInstance);
 
     MSG_TRACE("Vulkan Renderer: %p initialized", this);
 };
@@ -94,7 +96,7 @@ std::vector<const char*> VulkanRenderer::get_required_extensions() {
 
     extensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);  // Generic surface
 
-    std::vector<const char*> requiredPlatformExtensions = mPlatform->get_required_extensions();
+    std::vector<const char*> requiredPlatformExtensions = vulkanplatform::get_platform_extensions();
 
     for (const auto& extension : requiredPlatformExtensions) {
         extensions.emplace_back(extension);

@@ -1,6 +1,6 @@
 add_library(Engine_lib SHARED src/core/logger.cpp src/core/logger.hpp
                               src/core/asserts.hpp src/defines.hpp 
-                              src/platform/platform.hpp src/platform/platform_win32.cpp
+                              src/platform/platform.hpp src/platform/platform_win32.hpp src/platform/platform_win32.cpp
                               src/core/application.hpp src/core/application.cpp
                               src/entry.hpp src/game_types.hpp
                               src/core/e_memory.hpp src/core/e_memory.cpp
@@ -10,7 +10,8 @@ add_library(Engine_lib SHARED src/core/logger.cpp src/core/logger.hpp
                               src/renderer/renderer.hpp src/renderer/renderer.cpp
                               src/renderer/renderer_backend.hpp
                               src/renderer/vulkan/vulkan_backend.hpp src/renderer/vulkan/vulkan_backend.cpp
-                              src/renderer/vulkan/vulkan_device.hpp src/renderer/vulkan/vulkan_device.cpp)
+                              src/renderer/vulkan/vulkan_device.hpp src/renderer/vulkan/vulkan_device.cpp
+                              src/renderer/vulkan/vulkan_platform.hpp src/renderer/vulkan/vulkan_platform_win32.cpp)
 target_include_directories(Engine_lib PRIVATE src/)
 
 find_package(Vulkan REQUIRED)

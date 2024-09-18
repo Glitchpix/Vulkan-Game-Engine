@@ -5,10 +5,11 @@
 
 class VulkanDevice {
 public:
-    VulkanDevice();
+    VulkanDevice(VkInstance instance);
     ~VulkanDevice();
 
 private:
+    VkInstance mInstance;
     VkPhysicalDevice mPhysicalDevice;
     VkDevice mDevice;
 };

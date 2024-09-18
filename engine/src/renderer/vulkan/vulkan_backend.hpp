@@ -6,6 +6,7 @@
 #include "renderer/renderer_backend.hpp"
 #include "vulkan_device.hpp"
 
+#include <memory>
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -26,7 +27,7 @@ public:
 private:
     VkInstance mInstance{nullptr};
     VkDebugUtilsMessengerEXT mDebugMessenger{nullptr};
-    VulkanDevice mDevice;
+    std::unique_ptr<VulkanDevice> mDevice;
 
     bool mEnableValidationLayers{false};
     std::vector<const char*> mValidationLayers;
