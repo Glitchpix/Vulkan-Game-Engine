@@ -1,0 +1,16 @@
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: Align
+BraceWrapping:
+  BeforeCatch: true
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeColon
+Cpp11BracedListStyle: true
+DerivePointerAlignment: true
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+ReflowComments: false
+SkipMacroDefinitionBody: true
+SpaceBeforeCpp11BracedList: false
+SpacesBeforeTrailingComments: 2
