@@ -1,5 +1,6 @@
 #include "vulkan_backend.hpp"
 #include "core/logger.hpp"
+#include "vulkan_defines.inl"
 #include "vulkan_device.hpp"
 #include "vulkan_platform.hpp"
 

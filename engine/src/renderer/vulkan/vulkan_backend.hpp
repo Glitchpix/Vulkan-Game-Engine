@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/asserts.hpp"
 #include "core/logger.hpp"
 #include "defines.hpp"
 #include "renderer/renderer_backend.hpp"
@@ -10,10 +9,6 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-#define VK_CHECK(expr)                     \
-    {                                      \
-        ENGINE_ASSERT(expr == VK_SUCCESS); \
-    }
 class VulkanRenderer : public RendererBackend {
 public:
     VulkanRenderer(const char* applicationName, Platform* platform);
@@ -26,6 +21,7 @@ public:
 
 private:
     VkInstance mInstance{nullptr};
+    VkSurfaceKHR mSurface{nullptr};
     VkDebugUtilsMessengerEXT mDebugMessenger{nullptr};
     std::unique_ptr<VulkanDevice> mDevice;
 

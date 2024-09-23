@@ -9,6 +9,7 @@ add_library(Engine_lib SHARED src/core/logger.cpp src/core/logger.hpp
                               src/core/clock.hpp src/core/clock.cpp
                               src/renderer/renderer.hpp src/renderer/renderer.cpp
                               src/renderer/renderer_backend.hpp
+                              src/renderer/vulkan/vulkan_defines.inl
                               src/renderer/vulkan/vulkan_backend.hpp src/renderer/vulkan/vulkan_backend.cpp
                               src/renderer/vulkan/vulkan_device.hpp src/renderer/vulkan/vulkan_device.cpp
                               src/renderer/vulkan/vulkan_platform.hpp src/renderer/vulkan/vulkan_platform_win32.cpp)
