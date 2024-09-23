@@ -61,8 +61,11 @@ VulkanRenderer::VulkanRenderer(const char* applicationName, Platform* platform) 
     }
     setup_debug_messenger();
 
+    // Surface setup
+    mSurface = vulkanplatform::create_platform_surface(*mPlatform, mInstance);
+
     // Device setup
-    mDevice = std::make_unique<VulkanDevice>(mInstance);
+    mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface);
 
     MSG_TRACE("Vulkan Renderer: %p initialized", this);
 };
@@ -76,6 +79,7 @@ VulkanRenderer::~VulkanRenderer() {
             func(mInstance, mDebugMessenger, nullptr);
         }
     }
+    vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
     vkDestroyInstance(mInstance, nullptr);
 }
 
