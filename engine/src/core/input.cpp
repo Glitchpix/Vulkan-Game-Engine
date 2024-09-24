@@ -6,7 +6,7 @@ InputHandler::InputHandler(EventManager& eventManager) : mEventManager{eventMana
     MSG_TRACE("Inputhandler: %p created", static_cast<void*>(this));
 }
 
-void InputHandler::update(f64) {
+void InputHandler::update(f64 /*unused*/) {
     mInputState.previousKeyBoardState = mInputState.currentKeyBoardState;
     mInputState.currentMouseState = mInputState.currentMouseState;
 }

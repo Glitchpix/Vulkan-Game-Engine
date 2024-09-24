@@ -11,6 +11,10 @@
 
 class VulkanRenderer : public RendererBackend {
 public:
+    VulkanRenderer(const VulkanRenderer&) = delete;
+    VulkanRenderer(VulkanRenderer&&) = delete;
+    VulkanRenderer& operator=(const VulkanRenderer&) = delete;
+    VulkanRenderer& operator=(VulkanRenderer&&) = delete;
     VulkanRenderer(std::string applicationName, Platform* platform);
     ~VulkanRenderer() override;
 

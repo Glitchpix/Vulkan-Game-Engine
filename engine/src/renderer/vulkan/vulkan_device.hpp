@@ -7,6 +7,10 @@
 
 class VulkanDevice {
 public:
+    VulkanDevice(const VulkanDevice &) = default;
+    VulkanDevice(VulkanDevice &&) = delete;
+    VulkanDevice &operator=(const VulkanDevice &) = delete;
+    VulkanDevice &operator=(VulkanDevice &&) = delete;
     VulkanDevice(VkInstance instance, VkSurfaceKHR surface);
     ~VulkanDevice();
 
@@ -18,7 +22,7 @@ private:
     VkDevice mDevice{nullptr};
 
     //TODO: Make this configurable
-    const std::vector<const char*> mDeviceExtensions = {
+    const std::vector<const char *> mDeviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     struct QueueFamilyIndices {

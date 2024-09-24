@@ -12,6 +12,10 @@ public:
         RENDERER_BACKEND_TYPE_DIRECTX
     };
 
+    RendererBackend(const RendererBackend&) = default;
+    RendererBackend(RendererBackend&&) = delete;
+    RendererBackend& operator=(const RendererBackend&) = default;
+    RendererBackend& operator=(RendererBackend&&) = delete;
     RendererBackend(Platform* platform, BackendType backendType) : mPlatform{platform}, mBackendType{backendType} {};
     virtual ~RendererBackend() = default;
 

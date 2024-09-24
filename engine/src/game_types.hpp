@@ -15,9 +15,9 @@ public:
     Game() = default;
     Game(short x, short y, short width, short height, std::string name) : mX{x}, mY{y}, mWidth{width}, mHeight{height}, mName{std::move(name)} {};
 
-    bool (*initialize)();
-    bool (*update)(double deltaTime);
-    bool (*render)(double deltaTime);
+    bool (*initialize)(){nullptr};
+    bool (*update)(double deltaTime){nullptr};
+    bool (*render)(double deltaTime){nullptr};
 
-    void (*on_resize)(short width, short height);
+    void (*on_resize)(short width, short height){nullptr};
 };

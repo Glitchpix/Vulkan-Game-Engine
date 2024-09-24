@@ -12,6 +12,10 @@ public:
     struct RenderPacket {
         f64 deltaTime;
     };
+    Renderer(const Renderer&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
     Renderer(std::string applicationName, Platform* platform);
     ~Renderer();
 

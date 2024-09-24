@@ -4,17 +4,16 @@
 #include <game_types.hpp>
 
 //TODO: Implement some of these
-namespace GameFunctions{
-    bool initialize(){
+namespace GameFunctions {
+    bool initialize() {
         return true;
     };
-    bool update(double deltaTime){
+    bool update(double /*unused*/) {
         return true;
     };
-    bool render(double deltaTime){
+    bool render(double /*unused*/) {
         return true;
     };
-    void on_resize(short width, short height){
+    void on_resize(short /*unused*/, short /*unused*/) {
     };
 }
-
