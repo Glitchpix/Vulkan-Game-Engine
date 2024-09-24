@@ -30,7 +30,7 @@ class Logger {
 public:
     DLL_EXPORT static bool init_logging();
     static void shutdown_logging();
-    static std::string log_output(LogLevel level, const char* format, ...) {
+    static std::string log_output(LogLevel level, const char* format, ...) __attribute__((format(printf, 2, 3))) {
         const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
         bool is_error = level < LOG_LEVEL_WARN;
 
