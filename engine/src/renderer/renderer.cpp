@@ -12,7 +12,7 @@ Renderer::Renderer(std::string applicationName, Platform *platform) {
 
 Renderer::~Renderer() = default;
 
-void Renderer::on_resize(i16, i16) {
+void Renderer::on_resize(i16 /*unused*/, i16 /*unused*/) {
     //TODO: handle resize
     MSG_ERROR("Resize not implemented yet!");
 }

@@ -17,6 +17,11 @@ public:
     DLL_EXPORT Application(Game& game, EventManager& eventManager);
     DLL_EXPORT ~Application();
 
+    Application(const Application&) = delete;
+    Application(Application&&) = delete;
+    Application& operator=(const Application&) = delete;
+    Application& operator=(Application&&) = delete;
+
     DLL_EXPORT bool run();
 
 private:

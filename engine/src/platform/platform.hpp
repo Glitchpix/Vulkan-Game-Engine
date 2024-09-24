@@ -10,9 +10,18 @@ class InputHandler;
 class Platform {
 public:
     struct State {
+        State(const State&) = default;
+        State(State&&) = delete;
+        State& operator=(const State&) = default;
+        State& operator=(State&&) = delete;
+        State() = default;
         virtual ~State() = default;
     };
 
+    Platform(const Platform&) = delete;
+    Platform(Platform&&) = delete;
+    Platform& operator=(const Platform&) = delete;
+    Platform& operator=(Platform&&) = delete;
     Platform(InputHandler* InputHandler);
     ~Platform() = default;
 

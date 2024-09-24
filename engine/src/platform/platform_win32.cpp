@@ -5,6 +5,7 @@
 #include "core/logger.hpp"
 
 #include "platform_win32.hpp"
+#include <array>
 #include <cstddef>
 #include <cstdlib>
 #include <windowsx.h>  // param input extraction
@@ -32,7 +33,7 @@ bool Platform::startup(const std::string& application_name, int x, int y, int wi
     wc.hbrBackground = nullptr;  // Transparent
     wc.lpszClassName = "engine_window_class";
 
-    if (!RegisterClassA(&wc)) {
+    if (RegisterClassA(&wc) == 0U) {
         MessageBoxA(nullptr, "Window registration failed", "Error", MB_ICONEXCLAMATION | MB_OK);
         return FALSE;
     }
@@ -117,8 +118,8 @@ bool Platform::pumpMessages() {
 void Platform::consoleWrite(const std::string& message, unsigned char colour) {
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     // Warning levels Fatal to Trace
-    static unsigned char levels[6] = {64, 4, 6, 2, 1, 8};
-    SetConsoleTextAttribute(console_handle, levels[colour]);
+    static std::array<unsigned char, 6> levels{{64, 4, 6, 2, 1, 8}};
+    SetConsoleTextAttribute(console_handle, levels.at(colour));
 
     OutputDebugStringA(message.c_str());
     size_t length = strlen(message.c_str());
@@ -129,8 +130,8 @@ void Platform::consoleWrite(const std::string& message, unsigned char colour) {
 void Platform::consoleWriteError(const std::string& message, unsigned char colour) {
     HANDLE console_handle = GetStdHandle(STD_ERROR_HANDLE);
     // Warning levels Fatal to Trace
-    static unsigned char levels[6] = {64, 4, 6, 2, 1, 8};
-    SetConsoleTextAttribute(console_handle, levels[colour]);
+    static std::array<unsigned char, 6> levels{{64, 4, 6, 2, 1, 8}};
+    SetConsoleTextAttribute(console_handle, levels.at(colour));
 
     OutputDebugStringA(message.c_str());
     size_t length = strlen(message.c_str());
@@ -207,7 +208,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
         case WM_MBUTTONUP:
         case WM_RBUTTONUP: {
             bool pressed = (msg == WM_LBUTTONDOWN) || (msg == WM_MBUTTONDOWN) || (msg == WM_RBUTTONDOWN);
-            InputHandler::Button button;
+            InputHandler::Button button{};
             switch (msg) {
                 case WM_LBUTTONDOWN:
                 case WM_LBUTTONUP:

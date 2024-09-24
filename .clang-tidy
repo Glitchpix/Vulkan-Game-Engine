@@ -1,1 +1,1 @@
-Checks: '-*,readability-*,cppcoreguidelines-*,modernize-*,-modernize-use-trailing-return-type'
+Checks: '-*,readability-*,cppcoreguidelines-*,modernize-*,-modernize-use-trailing-return-type,-readability-identifier-length,-cppcoreguidelines-pro-type-union-access'
