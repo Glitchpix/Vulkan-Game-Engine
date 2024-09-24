@@ -1,9 +1,12 @@
 #pragma once
 
 #include "defines.hpp"
+#include <array>
 #include <memory>
+#include <string>
 
-class MemoryManager{
+
+class MemoryManager {
 public:
     enum tag {
         MEMORY_TAG_UNKNOWN,
@@ -20,21 +23,21 @@ public:
     DLL_EXPORT std::shared_ptr<void> allocate(size_t size, tag tag);
     DLL_EXPORT void free_block(void* block, size_t size, tag tag);
 
-    DLL_EXPORT char* get_usage();
+    DLL_EXPORT std::string get_usage();
 
     DLL_EXPORT static void* zero(void* block, size_t size);
     DLL_EXPORT static void* copy(void* dest, const void* source, size_t size);
     DLL_EXPORT static void* set(void* dest, int value, size_t size);
 
 private:
-    struct Stats{
-        size_t total_allocated;
-        size_t tagged_allocations[tag::MEMORY_TAG_MAX_TAGS];
+    struct AllocationInfo {
+        size_t bytesAllocated{};
+        std::string tagString;
+    };
+    struct Stats {
+        size_t total_allocated{};
+        std::array<AllocationInfo, tag::MEMORY_TAG_MAX_TAGS> tagged_allocations{
+            {{.tagString = "UNKNOWN"}, {.tagString = "TEST"}}};
     };
     Stats mStats{};
-
-    const char* tag_strings[tag::MEMORY_TAG_MAX_TAGS] = {
-        "UNKNOWN",
-        "TEST   "
-    };
 };

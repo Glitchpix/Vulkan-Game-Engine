@@ -2,7 +2,11 @@
 #include "logger.hpp"
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 
 // Idea: shared or unique ptr and make use of size_of, handle delete with custom deleter
@@ -33,9 +37,10 @@ auto MemoryManager::allocate(const size_t size, const tag tag) -> std::shared_pt
         MSG_WARN("Allocate called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
     mStats.total_allocated += size;
-    mStats.tagged_allocations[tag] += size;
+    mStats.tagged_allocations.at(tag).bytesAllocated += size;
 
     std::shared_ptr<void> block(malloc(size), [this, size, tag](void* block) { this->free_block(block, size, tag); });
+    MSG_DEBUG("Block: %p with size: %zu and tag: %s allocated", block.get(), size, mStats.tagged_allocations.at(tag).tagString.c_str());
     return block;
 }
 
@@ -44,45 +49,50 @@ void MemoryManager::free_block(void* block, const size_t size, const tag tag) {
         MSG_WARN("Free called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
     }
     mStats.total_allocated -= size;
-    mStats.tagged_allocations[tag] -= size;
+    mStats.tagged_allocations.at(tag).bytesAllocated -= size;
 
     free(block);
 
-    MSG_DEBUG("Block: %p with size: %zu and tag: %s freed", block, size, tag_strings[tag]);
+    MSG_DEBUG("Block: %p with size: %zu and tag: %s freed", block, size, mStats.tagged_allocations.at(tag).tagString.c_str());
 }
 
-char* MemoryManager::get_usage() {
+std::string MemoryManager::get_usage() {
     const long gibibyte = 1024 * 1024 * 1024;
     const long mebibyte = 1024 * 1024;
     const long kibibyte = 1024;
 
-    const size_t bufferSize = 8000;
-    char buffer[bufferSize] = "System memory use (tagged): \n";
-    size_t offset = strlen(buffer);
-    for (size_t i = 0; i < MEMORY_TAG_MAX_TAGS; ++i) {
-        char unit[4] = "XiB";
-        float amount = 1.0F;
-        if (mStats.tagged_allocations[i] >= gibibyte) {
-            unit[0] = 'G';
-            amount = mStats.tagged_allocations[i] / static_cast<float>(gibibyte);
-        } else if (mStats.tagged_allocations[i] >= mebibyte) {
-            unit[0] = 'M';
-            amount = mStats.tagged_allocations[i] / static_cast<float>(mebibyte);
-        } else if (mStats.tagged_allocations[i] >= kibibyte) {
-            unit[0] = 'K';
-            amount = mStats.tagged_allocations[i] / static_cast<float>(kibibyte);
-        } else {
-            unit[0] = 'B';
-            unit[1] = 0;
-            amount = static_cast<float>(mStats.tagged_allocations[i]);
+    std::ostringstream stringStream;
+    stringStream << "System memory use (tagged): \n";
+
+    // Define unit thresholds and names
+    const std::vector<std::pair<size_t, std::string>> units = {
+        {gibibyte, "GiB"},
+        {mebibyte, "MiB"},
+        {kibibyte, "KiB"},
+        {1, "B"}  // Fallback to bytes
+    };
+
+    for (const auto& tagged_allocation : mStats.tagged_allocations) {
+        double amount{};
+        auto tagString = tagged_allocation.tagString;
+        std::string unit = "B";
+
+        // Find the appropriate unit
+        for (const auto& [threshold, name] : units) {
+            if (tagged_allocation.bytesAllocated >= threshold) {
+                amount = static_cast<double>(tagged_allocation.bytesAllocated) / static_cast<double>(threshold);
+                unit = name;
+                break;
+            }
         }
 
-        size_t length = snprintf(buffer + offset, bufferSize, "  %s: %.2f%s\n", tag_strings[i], amount, unit);
-        offset += length;
+        // Append formatted string to the stream
+        stringStream << "  " << std::left << std::setw(10) << tagString << ": " << std::setprecision(2) << amount << unit << "\n";
     }
-    char* outString = _strdup(buffer);
-    return outString;
+
+    return stringStream.str();
 }
+
 
 void* MemoryManager::zero(void* block, size_t size) {
     return memset(block, 0, size);

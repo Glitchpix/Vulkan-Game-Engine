@@ -25,12 +25,12 @@ int main() {
         MemoryManager::zero(testBlockB.get(), blockSize);
         MemoryManager::set(testBlockB.get(), 1, blockSize);
 
-        MSG_INFO("%s", memoryManager.get_usage());
+        MSG_INFO("%s", memoryManager.get_usage().c_str());
 
         MSG_INFO("Freeing blocks...")
     }
 
-    MSG_INFO("%s", memoryManager.get_usage());
+    MSG_INFO("%s", memoryManager.get_usage().c_str());
 
     Game game{};
     if (!create_game(&game)) {
