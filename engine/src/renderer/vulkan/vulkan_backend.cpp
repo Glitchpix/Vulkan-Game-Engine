@@ -13,7 +13,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
 #if defined(_DEBUG)
     mEnableValidationLayers = true;
 #endif
-    MSG_TRACE("Vulkan Renderer: %p created", this);
+    MSG_TRACE("Vulkan Renderer: %p created", static_cast<void*>(this));
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = applicationName.c_str();
@@ -56,7 +56,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &mInstance);
 
     if (result != VK_SUCCESS) {
-        MSG_FATAL("Failed to create Vulkan renderer: %p", this);
+        MSG_FATAL("Failed to create Vulkan renderer: %p", static_cast<void*>(this));
         throw std::runtime_error("");
     }
     setup_debug_messenger();
@@ -67,11 +67,11 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
     // Device setup
     mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface);
 
-    MSG_TRACE("Vulkan Renderer: %p initialized", this);
+    MSG_TRACE("Vulkan Renderer: %p initialized", static_cast<void*>(this));
 };
 
 VulkanRenderer::~VulkanRenderer() {
-    MSG_DEBUG("Vulkan renderer: %p destructor called", this)
+    MSG_DEBUG("Vulkan renderer: %p destructor called", static_cast<void*>(this))
     if (mEnableValidationLayers) {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance,
                                                                                "vkDestroyDebugUtilsMessengerEXT");
@@ -111,7 +111,7 @@ std::vector<const char*> VulkanRenderer::get_required_extensions() {
         extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         MSG_DEBUG("[Vulkan] Required extensions:");
         for (const auto& extension : extensions) {
-            MSG_DEBUG(extension);
+            MSG_DEBUG("%s", extension);
         }
     }
 
@@ -179,16 +179,16 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(
     switch (messageSeverity) {
         default:
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-            MSG_ERROR(pCallbackData->pMessage);
+            MSG_ERROR("%s", pCallbackData->pMessage);
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-            MSG_WARN(pCallbackData->pMessage);
+            MSG_WARN("%s", pCallbackData->pMessage);
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-            MSG_INFO(pCallbackData->pMessage);
+            MSG_INFO("%s", pCallbackData->pMessage);
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-            MSG_TRACE(pCallbackData->pMessage);
+            MSG_TRACE("%s", pCallbackData->pMessage);
             break;
     }
 

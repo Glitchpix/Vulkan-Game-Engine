@@ -3,7 +3,7 @@
 #include "core/logger.hpp"
 
 InputHandler::InputHandler(EventManager& eventManager) : mEventManager{eventManager} {
-    MSG_TRACE("Inputhandler: %p created", this);
+    MSG_TRACE("Inputhandler: %p created", static_cast<void*>(this));
 }
 
 void InputHandler::update(f64) {

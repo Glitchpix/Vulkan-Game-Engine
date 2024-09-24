@@ -9,12 +9,12 @@
 VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface) : mInstance{instance}, mSurface{surface} {
     //TODO: Implement
     pick_physical_device();
-    MSG_INFO("[Vulkan] Device: %p initialized", this);
+    MSG_INFO("[Vulkan] Device: %p initialized", static_cast<void*>(this));
 }
 
 VulkanDevice::~VulkanDevice() {
     //TODO: Implement
-    MSG_INFO("[Vulkan] Device: %p destroyed", this);
+    MSG_INFO("[Vulkan] Device: %p destroyed", static_cast<void*>(this));
 }
 
 void VulkanDevice::pick_physical_device() {

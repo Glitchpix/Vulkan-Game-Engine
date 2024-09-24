@@ -12,7 +12,7 @@
 
 Platform::Platform(InputHandler* inputHandler) : mInputHandler{inputHandler} {
     mState = std::make_unique<WindowsState>();
-    MSG_TRACE("Platform: %p created", this);
+    MSG_TRACE("Platform: %p created", static_cast<void*>(this));
 }
 bool Platform::startup(const std::string& application_name, int x, int y, int width, int height) {
     //TODO Check if there's a better way instead of static_cast
@@ -94,7 +94,7 @@ bool Platform::startup(const std::string& application_name, int x, int y, int wi
     mClock_frequency = 1.0 / (double)frequency.QuadPart;
     QueryPerformanceCounter(&dynamic_cast<WindowsState*>(mState.get())->mStart_time);
 
-    MSG_TRACE("Platform: %p initialized", this);
+    MSG_TRACE("Platform: %p initialized", static_cast<void*>(this));
     return true;
 }
 void Platform::shutdown() {

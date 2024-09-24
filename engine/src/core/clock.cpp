@@ -3,17 +3,17 @@
 #include "platform/platform.hpp"
 
 Clock::Clock(Platform* platform) : mPlatform{platform} {
-    MSG_TRACE("Clock: %p created", this);
+    MSG_TRACE("Clock: %p created", static_cast<void*>(this));
 }
 
-void Clock::start(){
+void Clock::start() {
     mStartTime = mPlatform->getAbsoluteTime();
     mCurrentTime = mStartTime;
     mPreviousTime = mCurrentTime;
     mElapsedTime = 0;
 }
 
-void Clock::reset(){
+void Clock::reset() {
     mStartTime = 0;
     mElapsedTime = 0;
     mCurrentTime = 0;

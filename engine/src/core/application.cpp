@@ -37,10 +37,10 @@ Application::Application(Game &game, EventManager &eventManager)
         MSG_FATAL("Game failed to initialize!");
         // TODO: Probably throw an exception here too...
     }
-    MSG_TRACE("Game: %p initialized", &mGame);
+    MSG_TRACE("Game: %p initialized", static_cast<void *>(&mGame));
 
     mGame.on_resize(mWidth, mHeight);
-    MSG_TRACE("Application: %p created", this);
+    MSG_TRACE("Application: %p created", static_cast<void *>(this));
 }
 
 Application::~Application() = default;
