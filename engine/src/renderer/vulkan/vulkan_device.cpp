@@ -2,6 +2,7 @@
 #include "core/logger.hpp"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_defines.inl"
+#include <cstdint>
 #include <set>
 #include <vector>
 
@@ -122,7 +123,7 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
         VK_VERSION_PATCH(mDeviceProperties.apiVersion));
     // Memory information
     // TODO: Refactor some of these magic numbers
-    for (auto j = 0; j < memoryProperties.memoryHeapCount; ++j) {
+    for (uint32_t j = 0; j < memoryProperties.memoryHeapCount; ++j) {
         f32 memory_size_gib = (((f32)memoryProperties.memoryHeaps[j].size) / 1024.0F / 1024.0F / 1024.0F);
         if ((memoryProperties.memoryHeaps[j].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != VK_FALSE) {
             MSG_INFO("Local GPU memory: %.2f GiB", memory_size_gib);

@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-class EventManager{
+class EventManager {
 public:
-    struct Context{
+    struct Context {
         union {
             i64 i64[2];
             u64 u64[2];
@@ -69,17 +69,15 @@ private:
 
         Event(void* listener_i, event_callback callback_i) : listener{listener_i}, callback{callback_i} {};
 
-        bool operator==(const Event& other) const { return listener == other.listener && callback == other.callback;};
-        struct hash
-        {
-            size_t operator()(const Event& event) const
-            {
+        bool operator==(const Event& other) const { return listener == other.listener && callback == other.callback; };
+        struct hash {
+            size_t operator()(const Event& event) const {
                 size_t rowHash = std::hash<void*>()(event.listener);
-                size_t colHash = std::hash<void*>()(event.callback) << 1;
+                size_t colHash = std::hash<void*>()((void*)(event.callback)) << 1;
                 return rowHash ^ colHash;
             }
         };
     };
 
-    std::unordered_map<EventCode,std::unordered_set<Event,Event::hash>> mRegisteredEvents;
+    std::unordered_map<EventCode, std::unordered_set<Event, Event::hash>> mRegisteredEvents;
 };

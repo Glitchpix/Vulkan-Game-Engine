@@ -1,9 +1,10 @@
 #include "renderer.hpp"
+#include "core/logger.hpp"
 #include "renderer_backend.hpp"
 #include "vulkan/vulkan_backend.hpp"
-#include "core/logger.hpp"
 
-Renderer::Renderer(const char *applicationName, Platform *platform) {
+
+Renderer::Renderer(std::string applicationName, Platform *platform) {
     //TODO: make renderer configurable
     mRenderer = std::make_unique<VulkanRenderer>(applicationName, platform);
     MSG_TRACE("Renderer: %p created", this);
@@ -11,7 +12,7 @@ Renderer::Renderer(const char *applicationName, Platform *platform) {
 
 Renderer::~Renderer() = default;
 
-void Renderer::on_resize(i16 width, i16 height) {
+void Renderer::on_resize(i16, i16) {
     //TODO: handle resize
     MSG_ERROR("Resize not implemented yet!");
 }

@@ -11,7 +11,7 @@
 
 class VulkanRenderer : public RendererBackend {
 public:
-    VulkanRenderer(const char* applicationName, Platform* platform);
+    VulkanRenderer(std::string applicationName, Platform* platform);
     ~VulkanRenderer() override;
 
     void resized(i16 width, i16 height) override;

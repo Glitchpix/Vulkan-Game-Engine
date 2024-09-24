@@ -1,8 +1,10 @@
 #pragma once
 
-#include "defines.hpp"
 #include "core/event.hpp"
+#include "defines.hpp"
 #include <memory>
+#include <string>
+
 
 class Platform;
 class Game;
@@ -16,13 +18,14 @@ public:
     DLL_EXPORT ~Application();
 
     DLL_EXPORT bool run();
+
 private:
     short mX{0};
     short mY{0};
     short mWidth{0};
     short mHeight{0};
 
-    char* mName{};
+    std::string mName;
 
     bool mRunning{false};
     bool mSuspended{false};
@@ -36,5 +39,5 @@ private:
 
     static bool on_event(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
     static bool on_key(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
-    static bool on_mouse_move(EventManager::EventCode code, void *sender, void *listener, EventManager::Context context);
+    static bool on_mouse_move(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
 };

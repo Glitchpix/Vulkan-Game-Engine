@@ -9,14 +9,14 @@
 #include <vulkan/vulkan_core.h>
 
 
-VulkanRenderer::VulkanRenderer(const char* applicationName, Platform* platform) : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN) {
+VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN) {
 #if defined(_DEBUG)
     mEnableValidationLayers = true;
 #endif
     MSG_TRACE("Vulkan Renderer: %p created", this);
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = applicationName;
+    appInfo.pApplicationName = applicationName.c_str();
     appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 0, 1, 0);
     appInfo.pEngineName = "Vulkan Test Engine";
     appInfo.engineVersion = VK_MAKE_API_VERSION(0, 0, 1, 0);
@@ -83,15 +83,15 @@ VulkanRenderer::~VulkanRenderer() {
     vkDestroyInstance(mInstance, nullptr);
 }
 
-void VulkanRenderer::resized(i16 width, i16 height) {
+void VulkanRenderer::resized(i16, i16) {
     //TODO
 }
 
-bool VulkanRenderer::begin_frame(f64 deltaTime) {
+bool VulkanRenderer::begin_frame(f64) {
     //TODO
     return true;
 }
-bool VulkanRenderer::end_frame(f64 deltaTime) {
+bool VulkanRenderer::end_frame(f64) {
     //TODO
     return true;
 }
@@ -172,9 +172,9 @@ void VulkanRenderer::setup_debug_messenger() {
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    VkDebugUtilsMessageTypeFlagsEXT /*unused*/,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* pUserData) {
+    void* /*unused*/) {
 
     switch (messageSeverity) {
         default:
