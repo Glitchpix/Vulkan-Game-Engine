@@ -7,10 +7,10 @@
 #include <string_view>
 
 
-#define LOG_WARN_ENABLED 1
-#define LOG_INFO_ENABLED 1
-#define LOG_DEBUG_ENABLED 1
-#define LOG_TRACE_ENABLED 1
+constexpr bool LOG_WARN_ENABLED = true;
+constexpr bool LOG_INFO_ENABLED = true;
+constexpr bool LOG_DEBUG_ENABLED = true;
+constexpr bool LOG_TRACE_ENABLED = false;
 
 #if K_RELEASE == 1
 #define LOG_DEBUG_ENABLED 0
@@ -57,32 +57,48 @@ public:
     }
 };
 
-#define MSG_FATAL(format, ...) Logger::log_output(LOG_LEVEL_FATAL, format, __VA_ARGS__);
+template <typename... Args>
+constexpr std::string MSG_FATAL(std::string_view format, Args&&... args) {
+    return Logger::log_output(LOG_LEVEL_FATAL, format, std::forward<Args>(args)...);
+}
 
-#ifndef MSG_ERROR
-#define MSG_ERROR(format, ...) Logger::log_output(LOG_LEVEL_ERROR, format, __VA_ARGS__);
-#endif
+template <typename... Args>
+constexpr std::string MSG_ERROR(std::string_view format, Args&&... args) {
+    return Logger::log_output(LOG_LEVEL_ERROR, format, std::forward<Args>(args)...);
+}
 
-#if LOG_WARN_ENABLED == 1
-#define MSG_WARN(format, ...) Logger::log_output(LOG_LEVEL_WARN, format, __VA_ARGS__);
-#else
-#define MSG_WARN(format, ...)
-#endif
+template <typename... Args>
+constexpr std::string MSG_WARN(std::string_view format, Args&&... args) {
+    if constexpr (LOG_WARN_ENABLED) {
+        return Logger::log_output(LOG_LEVEL_WARN, format, std::forward<Args>(args)...);
+    } else {
+        return "";
+    }
+}
 
-#if LOG_INFO_ENABLED == 1
-#define MSG_INFO(format, ...) Logger::log_output(LOG_LEVEL_INFO, format, __VA_ARGS__);
-#else
-#define MSG_INFO(format, ...)
-#endif
+template <typename... Args>
+constexpr std::string MSG_INFO(std::string_view format, Args&&... args) {
+    if constexpr (LOG_INFO_ENABLED) {
+        return Logger::log_output(LOG_LEVEL_INFO, format, std::forward<Args>(args)...);
+    } else {
+        return "";
+    }
+}
 
-#if LOG_DEBUG_ENABLED == 1
-#define MSG_DEBUG(format, ...) Logger::log_output(LOG_LEVEL_DEBUG, format, __VA_ARGS__);
-#else
-#define MSG_DEBUG(format, ...)
-#endif
+template <typename... Args>
+constexpr std::string MSG_DEBUG(std::string_view format, Args&&... args) {
+    if constexpr (LOG_DEBUG_ENABLED) {
+        return Logger::log_output(LOG_LEVEL_DEBUG, format, std::forward<Args>(args)...);
+    } else {
+        return "";
+    }
+}
 
-#if LOG_TRACE_ENABLED == 1
-#define MSG_TRACE(...) Logger::log_output(LOG_LEVEL_TRACE, __VA_ARGS__);
-#else
-#define MSG_TRACE(...)
-#endif
+template <typename... Args>
+constexpr std::string MSG_TRACE(std::string_view format, Args&&... args) {
+    if constexpr (LOG_TRACE_ENABLED) {
+        return Logger::log_output(LOG_LEVEL_TRACE, format, std::forward<Args>(args)...);
+    } else {
+        return "";
+    }
+}

@@ -34,7 +34,7 @@ void MemoryManager::shutdown() {
 
 auto MemoryManager::allocate(const size_t size, const tag tag) -> std::shared_ptr<void> {
     if (tag == tag::MEMORY_TAG_UNKNOWN) {
-        MSG_WARN("Allocate called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
+        MSG_WARN("Allocate called with MEMORY_TAG_UNKNOWN, re-call with correct tag.");
     }
     mStats.total_allocated += size;
     mStats.tagged_allocations.at(tag).bytesAllocated += size;
@@ -46,7 +46,7 @@ auto MemoryManager::allocate(const size_t size, const tag tag) -> std::shared_pt
 
 void MemoryManager::free_block(void* block, const size_t size, const tag tag) {
     if (tag == tag::MEMORY_TAG_UNKNOWN) {
-        MSG_WARN("Free called with MEMORY_TAG_UNKNOWN, re-call with correct tag.")
+        MSG_WARN("Free called with MEMORY_TAG_UNKNOWN, re-call with correct tag.");
     }
     mStats.total_allocated -= size;
     mStats.tagged_allocations.at(tag).bytesAllocated -= size;

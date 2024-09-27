@@ -23,7 +23,7 @@ bool Renderer::draw_frame(RenderPacket &renderPacket) {
         return false;
     };
     if (!mRenderer->end_frame(renderPacket.deltaTime)) {
-        MSG_WARN("Frame failed to finish rendering")
+        MSG_WARN("Frame failed to finish rendering");
         return false;
     }
     return true;

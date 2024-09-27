@@ -71,7 +71,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
 };
 
 VulkanRenderer::~VulkanRenderer() {
-    MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this))
+    MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
     if (mEnableValidationLayers) {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance,
                                                                                "vkDestroyDebugUtilsMessengerEXT");

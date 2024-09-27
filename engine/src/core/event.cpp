@@ -10,10 +10,10 @@ EventManager::EventManager() {
 bool EventManager::register_event(EventCode code, void* listener, event_callback callback) {
     auto emplaceResult = mRegisteredEvents[code].emplace(listener, callback);
     if (!emplaceResult.second) {
-        MSG_WARN("Listener: {:p} tried to register already existing callback: {:p} with code: {:x}", static_cast<void*>(listener), reinterpret_cast<void*>(callback), static_cast<int>(code))
+        MSG_WARN("Listener: {:p} tried to register already existing callback: {:p} with code: {:x}", static_cast<void*>(listener), reinterpret_cast<void*>(callback), static_cast<int>(code));
         return false;
     }
-    MSG_TRACE("Listener: {:p} registered callback: {:p} with code: {:x}", static_cast<void*>(listener), reinterpret_cast<void*>(callback), static_cast<int>(code))
+    MSG_TRACE("Listener: {:p} registered callback: {:p} with code: {:x}", static_cast<void*>(listener), reinterpret_cast<void*>(callback), static_cast<int>(code));
     return true;
 }
 
@@ -29,7 +29,7 @@ bool EventManager::unregister_event(EventCode code, void* listener, event_callba
     for (auto&& eventIt = mRegisteredEvents[code].begin(); eventIt != mRegisteredEvents[code].end(); ++eventIt) {
         if (eventIt->listener == listener && eventIt->callback == callback) {
             mRegisteredEvents[code].erase(eventIt);
-            MSG_TRACE("Listener: {:p} unregistered event callback: {:p} with code: {:x}", static_cast<void*>(listener), reinterpret_cast<void*>(callback), static_cast<int>(code))
+            MSG_TRACE("Listener: {:p} unregistered event callback: {:p} with code: {:x}", static_cast<void*>(listener), reinterpret_cast<void*>(callback), static_cast<int>(code));
             return true;
         }
     };
