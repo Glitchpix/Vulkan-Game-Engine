@@ -37,10 +37,10 @@ Application::Application(Game &game, EventManager &eventManager)
         MSG_FATAL("Game failed to initialize!");
         // TODO: Probably throw an exception here too...
     }
-    MSG_TRACE("Game: %p initialized", static_cast<void *>(&mGame));
+    MSG_TRACE("Game: {:p} initialized", static_cast<void *>(&mGame));
 
     mGame.on_resize(mWidth, mHeight);
-    MSG_TRACE("Application: %p created", static_cast<void *>(this));
+    MSG_TRACE("Application: {:p} created", static_cast<void *>(this));
 }
 
 Application::~Application() = default;
@@ -82,7 +82,7 @@ bool Application::run() {
             // f64 timeLeftAfterTargetFrame = targetFrameSeconds - deltaTime;
             // TODO allow state to sleep here depending on timeLeft
             mPlatform->sleep(20);
-            MSG_TRACE("Frame and input delta: %f", deltaTime);
+            MSG_TRACE("Frame and input delta: {:f}", deltaTime);
         }
     }
 
@@ -132,14 +132,14 @@ bool Application::on_key(EventManager::EventCode code, void * /*unused*/,
         if (keyCode == InputHandler::Key::KEY_A) {
             MSG_DEBUG("Explicit 'A' Key pressed");
         } else {
-            MSG_DEBUG("'%c' Key pressed", keyCode);
+            MSG_DEBUG("'{:c}' Key pressed", static_cast<char>(keyCode));
         }
     } else if (code == EventManager::EventCode::EVENT_CODE_KEY_RELEASED) {
         auto keyCode = static_cast<InputHandler::Key>(context.i16[0]);
         if (keyCode == InputHandler::Key::KEY_B) {
             MSG_DEBUG("Explicit 'B' Key released");
         } else {
-            MSG_DEBUG("'%c' Key released", keyCode);
+            MSG_DEBUG("'{:c}' Key released", static_cast<char>(keyCode));
         }
     }
     return false;
@@ -153,7 +153,7 @@ bool Application::on_mouse_move(EventManager::EventCode code, void * /*unused*/,
     if (code == EventManager::EventCode::EVENT_CODE_MOUSE_MOVED) {
         i16 x = context.i16[0];
         i16 y = context.i16[1];
-        MSG_TRACE("Mouse move processed: (%i, %i)", x, y);
+        MSG_TRACE("Mouse move processed: ({}, {})", x, y);
     }
     return false;
 }

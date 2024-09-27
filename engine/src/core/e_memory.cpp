@@ -25,7 +25,7 @@ TODO: Lambda functions may cause issues with many calls to allocate, investigate
 */
 
 MemoryManager::MemoryManager() {
-    MSG_TRACE("MemoryManager: %p created", static_cast<void*>(this));
+    MSG_TRACE("MemoryManager: {:p} created", static_cast<void*>(this));
 }
 
 void MemoryManager::shutdown() {
@@ -40,7 +40,7 @@ auto MemoryManager::allocate(const size_t size, const tag tag) -> std::shared_pt
     mStats.tagged_allocations.at(tag).bytesAllocated += size;
 
     std::shared_ptr<void> block(malloc(size), [this, size, tag](void* block) { this->free_block(block, size, tag); });
-    MSG_DEBUG("Block: %p with size: %zu and tag: %s allocated", block.get(), size, mStats.tagged_allocations.at(tag).tagString.c_str());
+    MSG_DEBUG("Block: {:p} with size: {} and tag: {} allocated", block.get(), size, mStats.tagged_allocations.at(tag).tagString.c_str());
     return block;
 }
 
@@ -53,7 +53,7 @@ void MemoryManager::free_block(void* block, const size_t size, const tag tag) {
 
     free(block);
 
-    MSG_DEBUG("Block: %p with size: %zu and tag: %s freed", block, size, mStats.tagged_allocations.at(tag).tagString.c_str());
+    MSG_DEBUG("Block: {:p} with size: {} and tag: {} freed", block, size, mStats.tagged_allocations.at(tag).tagString.c_str());
 }
 
 std::string MemoryManager::get_usage() {

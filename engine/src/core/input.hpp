@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include <array>
 
 class EventManager;
 
@@ -171,13 +172,13 @@ public:
 
 private:
     struct KeyboardState {
-        bool keys[Key::KEYS_MAX_KEYS];
+        std::array<bool, Key::KEYS_MAX_KEYS> keys;
     };
 
     struct MouseState {
         i16 x;
         i16 y;
-        bool buttons[Button::BUTTON_MAX_BUTTONS];
+        std::array<bool, Button::BUTTON_MAX_BUTTONS> buttons;
     };
 
     struct InputState {
@@ -188,5 +189,5 @@ private:
     };
 
     InputState mInputState{};
-    EventManager& mEventManager;
+    EventManager* mEventManager;
 };

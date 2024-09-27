@@ -7,7 +7,7 @@
 Renderer::Renderer(std::string applicationName, Platform *platform) {
     //TODO: make renderer configurable
     mRenderer = std::make_unique<VulkanRenderer>(applicationName, platform);
-    MSG_TRACE("Renderer: %p created", static_cast<void *>(this));
+    MSG_TRACE("Renderer: {:p} created", static_cast<void *>(this));
 }
 
 Renderer::~Renderer() = default;

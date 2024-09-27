@@ -3,7 +3,7 @@
 #include "platform/platform.hpp"
 
 Clock::Clock(Platform* platform) : mPlatform{platform} {
-    MSG_TRACE("Clock: %p created", static_cast<void*>(this));
+    MSG_TRACE("Clock: {:p} created", static_cast<void*>(this));
 }
 
 void Clock::start() {

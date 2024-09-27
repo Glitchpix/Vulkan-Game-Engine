@@ -1,10 +1,10 @@
 #pragma once
 #include "defines.hpp"
-#include <cstdarg>
-#include <cstdio>
+#include <format>
 #include <platform/platform.hpp>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 
 #define LOG_WARN_ENABLED 1
@@ -30,39 +30,22 @@ class Logger {
 public:
     DLL_EXPORT static bool init_logging();
     static void shutdown_logging();
-    static std::string log_output(LogLevel level, const char* format, ...) __attribute__((format(printf, 2, 3))) {
+    template <class... Args>
+    static std::string log_output(LogLevel level, std::string_view format, Args&&... args) {
         const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
         bool is_error = level < LOG_LEVEL_WARN;
 
         std::ostringstream stringStream;
         stringStream << prepend_level[level];
 
-        std::string result;
-        // TODO: see if there's a safe way to do this with variadic templates
-        // Will complain about literal string format (-Wformat security), due to format not being checked.
-        va_list args = nullptr;
-        va_list args_copy = nullptr;
-
-        va_start(args, format);
-        va_copy(args_copy, args);
-
-        int len = vsnprintf(nullptr, 0, format, args);
-        if (len < 0) {
-            va_end(args_copy);
-            va_end(args);
-            throw std::runtime_error("vsnprintf error");
+        std::string formatted_message;
+        if constexpr (sizeof...(args) > 0) {
+            formatted_message = std::vformat(format, std::make_format_args(args...));
+        } else {
+            formatted_message = std::string(format);
         }
 
-        if (len > 0) {
-            result.resize(len);
-            vsnprintf(result.data(), len + 1, format, args_copy);
-        }
-
-        va_end(args_copy);
-        va_end(args);
-
-        stringStream << result << '\n';
-
+        stringStream << formatted_message << '\n';
         std::string message = stringStream.str();
 
         if (is_error) {

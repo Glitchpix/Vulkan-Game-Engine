@@ -9,12 +9,12 @@
 VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface) : mInstance{instance}, mSurface{surface} {
     //TODO: Implement
     pick_physical_device();
-    MSG_INFO("[Vulkan] Device: %p initialized", static_cast<void*>(this));
+    MSG_INFO("[Vulkan] Device: {:p} initialized", static_cast<void*>(this));
 }
 
 VulkanDevice::~VulkanDevice() {
     //TODO: Implement
-    MSG_INFO("[Vulkan] Device: %p destroyed", static_cast<void*>(this));
+    MSG_INFO("[Vulkan] Device: {:p} destroyed", static_cast<void*>(this));
 }
 
 void VulkanDevice::pick_physical_device() {
@@ -43,7 +43,7 @@ void VulkanDevice::pick_physical_device() {
 bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
     //TODO: Create temporary DeviceProperties object and only assign to mDevice if successful
     vkGetPhysicalDeviceProperties(physicalDevice, &mDeviceProperties);
-    MSG_INFO("[Vulkan] Device: %s queried, checking requirements...", mDeviceProperties.deviceName);
+    MSG_INFO("[Vulkan] Device: {} queried, checking requirements...", mDeviceProperties.deviceName);
 
     // TODO: Save as member if successful
     VkPhysicalDeviceFeatures deviceFeatures;
@@ -64,33 +64,33 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
     }
 
     if (mDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && (deviceFeatures.geometryShader != VK_TRUE)) {
-        MSG_INFO("[Vulkan] Device: %s is not a discrete GPU and does not support geometry shaders!", mDeviceProperties.deviceName);
+        MSG_INFO("[Vulkan] Device: {} is not a discrete GPU and does not support geometry shaders!", mDeviceProperties.deviceName);
         return false;
     }
 
     if (!indices.is_complete()) {
-        MSG_INFO("[Vulkan] Device: %s does not support all required queue families!", mDeviceProperties.deviceName);
+        MSG_INFO("[Vulkan] Device: {} does not support all required queue families!", mDeviceProperties.deviceName);
         return false;
     }
 
     if (!extensionsSupported) {
-        MSG_INFO("[Vulkan] Device: %s does not support all required extensions!", mDeviceProperties.deviceName);
+        MSG_INFO("[Vulkan] Device: {} does not support all required extensions!", mDeviceProperties.deviceName);
         return false;
     }
 
     if (!swapChainAdequate) {
-        MSG_INFO("[Vulkan] Device: %s does not not have an adequate swapchain!", mDeviceProperties.deviceName);
+        MSG_INFO("[Vulkan] Device: {} does not not have an adequate swapchain!", mDeviceProperties.deviceName);
         return false;
     }
 
     if (deviceFeatures.samplerAnisotropy != VK_TRUE) {
-        MSG_INFO("[Vulkan] Device: %s does not not support anisotropy!", mDeviceProperties.deviceName);
+        MSG_INFO("[Vulkan] Device: {} does not not support anisotropy!", mDeviceProperties.deviceName);
         return false;
     }
 
-    MSG_INFO("[Vulkan] Device: %s fulfills all requirements and is suitable", mDeviceProperties.deviceName);
+    MSG_INFO("[Vulkan] Device: {} fulfills all requirements and is suitable", mDeviceProperties.deviceName);
 
-    MSG_INFO("Selected device: '%s'.", mDeviceProperties.deviceName);
+    MSG_INFO("Selected device: '{}'.", mDeviceProperties.deviceName);
     // GPU type, etc.
     switch (mDeviceProperties.deviceType) {
         default:
@@ -111,13 +111,13 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
             break;
     }
     MSG_INFO(
-        "GPU Driver version: %d.%d.%d",
+        "GPU Driver version: {}.{}.{}",
         VK_VERSION_MAJOR(mDeviceProperties.driverVersion),
         VK_VERSION_MINOR(mDeviceProperties.driverVersion),
         VK_VERSION_PATCH(mDeviceProperties.driverVersion));
     // Vulkan API version.
     MSG_INFO(
-        "Vulkan API version: %d.%d.%d",
+        "Vulkan API version: {}.{}.{}",
         VK_VERSION_MAJOR(mDeviceProperties.apiVersion),
         VK_VERSION_MINOR(mDeviceProperties.apiVersion),
         VK_VERSION_PATCH(mDeviceProperties.apiVersion));
@@ -126,9 +126,9 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
     for (uint32_t j = 0; j < memoryProperties.memoryHeapCount; ++j) {
         f32 memory_size_gib = (((f32)memoryProperties.memoryHeaps[j].size) / 1024.0F / 1024.0F / 1024.0F);
         if ((memoryProperties.memoryHeaps[j].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != VK_FALSE) {
-            MSG_INFO("Local GPU memory: %.2f GiB", memory_size_gib);
+            MSG_INFO("Local GPU memory: {:.2f} GiB", memory_size_gib);
         } else {
-            MSG_INFO("Shared System memory: %.2f GiB", memory_size_gib);
+            MSG_INFO("Shared System memory: {:.2f} GiB", memory_size_gib);
         }
     }
     return true;
@@ -241,7 +241,7 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDev
         i++;
     }
 
-    MSG_INFO("%d | %d | %d | %d | %s",
+    MSG_INFO("{} | {} | {} | {} | {}",
              indices.graphicsFamily.value_or(-1),
              indices.presentFamily.value_or(-1),
              indices.computeFamily.value_or(-1),
