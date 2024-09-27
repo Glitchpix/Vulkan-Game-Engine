@@ -27,7 +27,7 @@ int main() {
 
         MSG_INFO("{}", memoryManager.get_usage().c_str());
 
-        MSG_INFO("Freeing blocks...")
+        MSG_INFO("Freeing blocks...");
     }
 
     MSG_INFO("{}", memoryManager.get_usage().c_str());
@@ -41,7 +41,7 @@ int main() {
     MSG_TRACE("Game: {:p} created", static_cast<void*>(&game));
 
     if ((game.initialize == nullptr) || (game.update == nullptr) || (game.render == nullptr) || (game.on_resize == nullptr)) {
-        MSG_FATAL("Not all game function pointers are assigned!")
+        MSG_FATAL("Not all game function pointers are assigned!");
         return -2;
     }
 
@@ -50,7 +50,7 @@ int main() {
     Application app{game, eventManager};
 
     if (!app.run()) {
-        MSG_FATAL("Application did not shutdown gracefully!")
+        MSG_FATAL("Application did not shutdown gracefully!");
         return -3;
     };
 

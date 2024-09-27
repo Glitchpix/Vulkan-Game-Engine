@@ -73,8 +73,8 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
     if (mEnableValidationLayers) {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance,
-                                                                               "vkDestroyDebugUtilsMessengerEXT");
+        auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(mInstance,
+                                                                                                "vkDestroyDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             func(mInstance, mDebugMessenger, nullptr);
         }
@@ -83,7 +83,7 @@ VulkanRenderer::~VulkanRenderer() {
     vkDestroyInstance(mInstance, nullptr);
 }
 
-void VulkanRenderer::resized(i16, i16) {
+void VulkanRenderer::resized(i16 /*width*/, i16 /*height*/) {
     //TODO
 }
 
@@ -91,7 +91,7 @@ bool VulkanRenderer::begin_frame(f64) {
     //TODO
     return true;
 }
-bool VulkanRenderer::end_frame(f64) {
+bool VulkanRenderer::end_frame(f64 /*deltaTime*/) {
     //TODO
     return true;
 }
@@ -199,8 +199,8 @@ VkResult VulkanRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance,
                                                       const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                                       const VkAllocationCallbacks* pAllocator,
                                                       VkDebugUtilsMessengerEXT* pDebugMessenger) {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance,
-                                                                          "vkCreateDebugUtilsMessengerEXT");
+    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance,
+                                                                                           "vkCreateDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     }

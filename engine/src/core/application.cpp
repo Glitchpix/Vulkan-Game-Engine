@@ -81,7 +81,8 @@ bool Application::run() {
             deltaTime = mClock->delta_time();
             // f64 timeLeftAfterTargetFrame = targetFrameSeconds - deltaTime;
             // TODO allow state to sleep here depending on timeLeft
-            mPlatform->sleep(20);
+            const auto SleepTime = 20;
+            mPlatform->sleep(SleepTime);
             MSG_TRACE("Frame and input delta: {:f}", deltaTime);
         }
     }

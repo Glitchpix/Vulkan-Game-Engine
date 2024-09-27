@@ -1,5 +1,6 @@
 #pragma once
 #include "defines.hpp"
+#include <array>
 #include <format>
 #include <platform/platform.hpp>
 #include <sstream>
@@ -28,15 +29,17 @@ enum LogLevel {
 
 class Logger {
 public:
+    static constexpr std::array logSeverity{"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
+    static constexpr std::array logSeverityColours{64, 4, 6, 2, 1, 8};
     DLL_EXPORT static bool init_logging();
     static void shutdown_logging();
     template <class... Args>
     static std::string log_output(LogLevel level, std::string_view format, Args&&... args) {
-        const std::string prepend_level[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
+
         bool is_error = level < LOG_LEVEL_WARN;
 
         std::ostringstream stringStream;
-        stringStream << prepend_level[level];
+        stringStream << logSeverity.at(level);
 
         std::string formatted_message;
         if constexpr (sizeof...(args) > 0) {

@@ -87,7 +87,8 @@ std::string MemoryManager::get_usage() {
         }
 
         // Append formatted string to the stream
-        stringStream << "  " << std::left << std::setw(10) << tagString << ": " << std::setprecision(2) << amount << unit << "\n";
+        const auto outputWidth = 10;
+        stringStream << "  " << std::left << std::setw(outputWidth) << tagString << ": " << std::setprecision(2) << amount << unit << "\n";
     }
 
     return stringStream.str();

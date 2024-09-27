@@ -117,9 +117,7 @@ bool Platform::pumpMessages() {
 
 void Platform::consoleWrite(const std::string& message, unsigned char colour) {
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-    // Warning levels Fatal to Trace
-    static std::array<unsigned char, 6> levels{{64, 4, 6, 2, 1, 8}};
-    SetConsoleTextAttribute(console_handle, levels.at(colour));
+    SetConsoleTextAttribute(console_handle, Logger::logSeverityColours.at(colour));
 
     OutputDebugStringA(message.c_str());
     size_t length = strlen(message.c_str());
@@ -129,9 +127,7 @@ void Platform::consoleWrite(const std::string& message, unsigned char colour) {
 //TODO refactor this into inner function
 void Platform::consoleWriteError(const std::string& message, unsigned char colour) {
     HANDLE console_handle = GetStdHandle(STD_ERROR_HANDLE);
-    // Warning levels Fatal to Trace
-    static std::array<unsigned char, 6> levels{{64, 4, 6, 2, 1, 8}};
-    SetConsoleTextAttribute(console_handle, levels.at(colour));
+    SetConsoleTextAttribute(console_handle, Logger::logSeverityColours.at(colour));
 
     OutputDebugStringA(message.c_str());
     size_t length = strlen(message.c_str());
@@ -159,7 +155,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
     if (msg == WM_CREATE) {
         auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         inputHandler = reinterpret_cast<InputHandler*>(pCreate->lpCreateParams);
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)inputHandler);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(inputHandler));
     } else {
         LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
         inputHandler = reinterpret_cast<InputHandler*>(ptr);
