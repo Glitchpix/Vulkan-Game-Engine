@@ -13,7 +13,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
 #if defined(_DEBUG)
     mEnableValidationLayers = true;
 #endif
-    MSG_TRACE("Vulkan Renderer: {:p} created", static_cast<void*>(this));
+    MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} created", static_cast<void*>(this));
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = applicationName.c_str();
@@ -56,7 +56,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &mInstance);
 
     if (result != VK_SUCCESS) {
-        MSG_FATAL("Failed to create Vulkan renderer: {:p}", static_cast<void*>(this));
+        MSG_FATAL("[Vulkan] Failed to create Vulkan renderer: {:p}", static_cast<void*>(this));
         throw std::runtime_error("");
     }
     setup_debug_messenger();
@@ -65,13 +65,15 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
     mSurface = vulkanplatform::create_platform_surface(*mPlatform, mInstance);
 
     // Device setup
-    mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface);
+    mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface, mValidationLayers);
 
-    MSG_TRACE("Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
+    MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
 };
 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
+    // Reset pointer to members here since otherwise the destructors will be called in the wrong order (as expected by Vulkan)
+    mDevice.reset();
     if (mEnableValidationLayers) {
         auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(mInstance,
                                                                                                 "vkDestroyDebugUtilsMessengerEXT"));

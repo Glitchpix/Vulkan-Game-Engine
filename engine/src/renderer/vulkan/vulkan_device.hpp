@@ -11,7 +11,7 @@ public:
     VulkanDevice(VulkanDevice &&) = delete;
     VulkanDevice &operator=(const VulkanDevice &) = delete;
     VulkanDevice &operator=(VulkanDevice &&) = delete;
-    VulkanDevice(VkInstance instance, VkSurfaceKHR surface);
+    VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char *> &validationLayers);
     ~VulkanDevice();
 
 private:
@@ -20,6 +20,11 @@ private:
     VkPhysicalDevice mPhysicalDevice{nullptr};
     VkPhysicalDeviceProperties mDeviceProperties;  // TODO: Fill in rest here
     VkDevice mDevice{nullptr};
+    VkQueue mGraphicsQueue{nullptr};
+    VkQueue mPresentQueue{nullptr};
+    VkQueue mTransferQueue{nullptr};
+
+    std::vector<const char *> mValidationLayers;
 
     //TODO: Make this configurable
     const std::vector<const char *> mDeviceExtensions = {

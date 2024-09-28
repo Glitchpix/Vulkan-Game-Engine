@@ -6,14 +6,18 @@
 #include <set>
 #include <vector>
 
-VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface) : mInstance{instance}, mSurface{surface} {
+VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers) : mInstance{instance},
+                                                                                                                          mSurface{surface},
+                                                                                                                          mValidationLayers{validationLayers} {
     //TODO: Implement
     pick_physical_device();
+    create_logical_device();
     MSG_INFO("[Vulkan] Device: {:p} initialized", static_cast<void*>(this));
 }
 
 VulkanDevice::~VulkanDevice() {
     //TODO: Implement
+    vkDestroyDevice(mDevice, nullptr);
     MSG_INFO("[Vulkan] Device: {:p} destroyed", static_cast<void*>(this));
 }
 
@@ -90,34 +94,34 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
 
     MSG_INFO("[Vulkan] Device: {} fulfills all requirements and is suitable", mDeviceProperties.deviceName);
 
-    MSG_INFO("Selected device: '{}'.", mDeviceProperties.deviceName);
+    MSG_INFO("[Vulkan] Selected device: '{}'.", mDeviceProperties.deviceName);
     // GPU type, etc.
     switch (mDeviceProperties.deviceType) {
         default:
         case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-            MSG_INFO("GPU type is Unknown.");
+            MSG_INFO("[Vulkan] GPU type is Unknown.");
             break;
         case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-            MSG_INFO("GPU type is Integrated.");
+            MSG_INFO("[Vulkan] GPU type is Integrated.");
             break;
         case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-            MSG_INFO("GPU type is Descrete.");
+            MSG_INFO("[Vulkan] GPU type is Descrete.");
             break;
         case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-            MSG_INFO("GPU type is Virtual.");
+            MSG_INFO("[Vulkan] GPU type is Virtual.");
             break;
         case VK_PHYSICAL_DEVICE_TYPE_CPU:
-            MSG_INFO("GPU type is CPU.");
+            MSG_INFO("[Vulkan] GPU type is CPU.");
             break;
     }
     MSG_INFO(
-        "GPU Driver version: {}.{}.{}",
+        "[Vulkan] GPU Driver version: {}.{}.{}",
         VK_VERSION_MAJOR(mDeviceProperties.driverVersion),
         VK_VERSION_MINOR(mDeviceProperties.driverVersion),
         VK_VERSION_PATCH(mDeviceProperties.driverVersion));
     // Vulkan API version.
     MSG_INFO(
-        "Vulkan API version: {}.{}.{}",
+        "[Vulkan] Vulkan API version: {}.{}.{}",
         VK_VERSION_MAJOR(mDeviceProperties.apiVersion),
         VK_VERSION_MINOR(mDeviceProperties.apiVersion),
         VK_VERSION_PATCH(mDeviceProperties.apiVersion));
@@ -126,9 +130,9 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
     for (uint32_t j = 0; j < memoryProperties.memoryHeapCount; ++j) {
         f32 memory_size_gib = (((f32)memoryProperties.memoryHeaps[j].size) / 1024.0F / 1024.0F / 1024.0F);
         if ((memoryProperties.memoryHeaps[j].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != VK_FALSE) {
-            MSG_INFO("Local GPU memory: {:.2f} GiB", memory_size_gib);
+            MSG_INFO("[Vulkan] Local GPU memory: {:.2f} GiB", memory_size_gib);
         } else {
-            MSG_INFO("Shared System memory: {:.2f} GiB", memory_size_gib);
+            MSG_INFO("[Vulkan] Shared System memory: {:.2f} GiB", memory_size_gib);
         }
     }
     return true;
@@ -149,15 +153,15 @@ bool VulkanDevice::check_device_extension_support(VkPhysicalDevice physicalDevic
 
     return requiredExtensions.empty();
 }
-/* 
+
 void VulkanDevice::create_logical_device() {
-    QueueFamilyIndices indices = findQueueFamilies(mPhysicalDevice);
+    QueueFamilyIndices indices = find_queue_families(mPhysicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),
                                               indices.presentFamily.value()};
 
-    float queuePriority = 1.0f;
+    float queuePriority = 1.0F;
     for (uint32_t queueFamily : uniqueQueueFamilies) {
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -178,23 +182,28 @@ void VulkanDevice::create_logical_device() {
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(mDeviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = mDeviceExtensions.data();
 
-    if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+    // TODO: Validate removal here still work due to deprication
+    // See: https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkDeviceCreateInfo.html
+    if (mValidationLayers.size() > 0) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(mValidationLayers.size());
+        createInfo.ppEnabledLayerNames = mValidationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create logical device");
-    }
+    VK_CHECK(vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS);
 
-    vkGetDeviceQueue(mPhysicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
-    vkGetDeviceQueue(mDevice, indices.presentFamily.value(), 0, &presentQueue);
-}*/
+    MSG_INFO("[Vulkan] Successfully created logical device: {:p}", static_cast<void*>(mDevice));
+
+    vkGetDeviceQueue(mDevice, indices.graphicsFamily.value(), 0, &mGraphicsQueue);
+    vkGetDeviceQueue(mDevice, indices.presentFamily.value(), 0, &mPresentQueue);
+    vkGetDeviceQueue(mDevice, indices.transferFamily.value(), 0, &mTransferQueue);
+
+    MSG_INFO("[Vulkan] Required Device queues successfully bound");
+}
 
 VulkanDevice::QueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDevice physicalDevice) {
     QueueFamilyIndices indices;
@@ -208,7 +217,7 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDev
     int i{0};
     int minTransferScore{255};
     MSG_INFO("[Vulkan] Selected device queue families");
-    MSG_INFO("Graphics | Present | Compute | Transfer | Name");
+    MSG_INFO("[Vulkan] Graphics | Present | Compute | Transfer | Name");
     for (const auto& queueFamily : queueFamilies) {
         int currentTransferScore{0};
 
@@ -236,12 +245,13 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDev
         }
 
         if (indices.is_complete()) {
+            // TODO: this might not find the most optimal queues for each, only first match for all.
             break;
         }
         i++;
     }
 
-    MSG_INFO("{} | {} | {} | {} | {}",
+    MSG_INFO("[Vulkan] {} | {} | {} | {} | {}",
              indices.graphicsFamily.value_or(-1),
              indices.presentFamily.value_or(-1),
              indices.computeFamily.value_or(-1),
