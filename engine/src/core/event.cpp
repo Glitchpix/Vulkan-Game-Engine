@@ -1,5 +1,6 @@
 #include "core/event.hpp"
 #include "core/logger.hpp"
+#include <algorithm>
 #include <stdexcept>
 
 
@@ -47,12 +48,5 @@ bool EventManager::fire_event(EventCode code, void* sender, Context data) {
         return false;
     }
 
-    for (auto&& event : mRegisteredEvents[code]) {
-        bool isHandled = event.callback(code, sender, event.listener, data);
-        if (isHandled) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::ranges::any_of(mRegisteredEvents[code], [&](auto&& event) { return event.callback(code, sender, event.listener, data); });
 }

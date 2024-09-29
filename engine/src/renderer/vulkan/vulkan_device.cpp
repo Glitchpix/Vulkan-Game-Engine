@@ -9,14 +9,12 @@
 VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers) : mInstance{instance},
                                                                                                                           mSurface{surface},
                                                                                                                           mValidationLayers{validationLayers} {
-    //TODO: Implement
     pick_physical_device();
     create_logical_device();
     MSG_INFO("[Vulkan] Device: {:p} initialized", static_cast<void*>(this));
 }
 
 VulkanDevice::~VulkanDevice() {
-    //TODO: Implement
     vkDestroyDevice(mDevice, nullptr);
     MSG_INFO("[Vulkan] Device: {:p} destroyed", static_cast<void*>(this));
 }
@@ -45,17 +43,10 @@ void VulkanDevice::pick_physical_device() {
 }
 
 bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
-    //TODO: Create temporary DeviceProperties object and only assign to mDevice if successful
     vkGetPhysicalDeviceProperties(physicalDevice, &mDeviceProperties);
     MSG_INFO("[Vulkan] Device: {} queried, checking requirements...", mDeviceProperties.deviceName);
-
-    // TODO: Save as member if successful
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
-
-    // TODO: Save as member if successful
-    VkPhysicalDeviceMemoryProperties memoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+    vkGetPhysicalDeviceFeatures(physicalDevice, &mDeviceFeatures);
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &mDeviceMemoryProperties);
 
     QueueFamilyIndices indices = find_queue_families(physicalDevice);
 
@@ -63,11 +54,11 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
 
     bool swapChainAdequate = false;
     if (extensionsSupported) {
-        SwapChainSupportDetails swapChainSupport = query_swapchain_support(physicalDevice);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        mSwapChainSupport = query_swapchain_support(physicalDevice);
+        swapChainAdequate = !mSwapChainSupport.formats.empty() && !mSwapChainSupport.presentModes.empty();
     }
 
-    if (mDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && (deviceFeatures.geometryShader != VK_TRUE)) {
+    if (mDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && (mDeviceFeatures.geometryShader != VK_TRUE)) {
         MSG_INFO("[Vulkan] Device: {} is not a discrete GPU and does not support geometry shaders!", mDeviceProperties.deviceName);
         return false;
     }
@@ -87,7 +78,7 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
         return false;
     }
 
-    if (deviceFeatures.samplerAnisotropy != VK_TRUE) {
+    if (mDeviceFeatures.samplerAnisotropy != VK_TRUE) {
         MSG_INFO("[Vulkan] Device: {} does not not support anisotropy!", mDeviceProperties.deviceName);
         return false;
     }
@@ -127,9 +118,9 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
         VK_VERSION_PATCH(mDeviceProperties.apiVersion));
     // Memory information
     // TODO: Refactor some of these magic numbers
-    for (uint32_t j = 0; j < memoryProperties.memoryHeapCount; ++j) {
-        f32 memory_size_gib = (((f32)memoryProperties.memoryHeaps[j].size) / 1024.0F / 1024.0F / 1024.0F);
-        if ((memoryProperties.memoryHeaps[j].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != VK_FALSE) {
+    for (const auto& memoryHeap : mDeviceMemoryProperties.memoryHeaps) {
+        f32 memory_size_gib = (((f32)memoryHeap.size) / 1024.0F / 1024.0F / 1024.0F);
+        if ((memoryHeap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != VK_FALSE) {
             MSG_INFO("[Vulkan] Local GPU memory: {:.2f} GiB", memory_size_gib);
         } else {
             MSG_INFO("[Vulkan] Shared System memory: {:.2f} GiB", memory_size_gib);

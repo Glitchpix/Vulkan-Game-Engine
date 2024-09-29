@@ -15,21 +15,6 @@ public:
     ~VulkanDevice();
 
 private:
-    VkInstance mInstance{nullptr};
-    VkSurfaceKHR mSurface{nullptr};
-    VkPhysicalDevice mPhysicalDevice{nullptr};
-    VkPhysicalDeviceProperties mDeviceProperties;  // TODO: Fill in rest here
-    VkDevice mDevice{nullptr};
-    VkQueue mGraphicsQueue{nullptr};
-    VkQueue mPresentQueue{nullptr};
-    VkQueue mTransferQueue{nullptr};
-
-    std::vector<const char *> mValidationLayers;
-
-    //TODO: Make this configurable
-    const std::vector<const char *> mDeviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -49,6 +34,25 @@ private:
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
+
+    VkInstance mInstance{nullptr};
+    VkSurfaceKHR mSurface{nullptr};
+    VkPhysicalDevice mPhysicalDevice{nullptr};
+    VkPhysicalDeviceProperties mDeviceProperties{};
+    VkPhysicalDeviceFeatures mDeviceFeatures{};
+    VkPhysicalDeviceMemoryProperties mDeviceMemoryProperties{};
+    SwapChainSupportDetails mSwapChainSupport{};
+    VkDevice mDevice{nullptr};
+    VkQueue mGraphicsQueue{nullptr};
+    VkQueue mPresentQueue{nullptr};
+    VkQueue mTransferQueue{nullptr};
+
+    std::vector<const char *> mValidationLayers;
+
+    //TODO: Make this configurable
+    const std::vector<const char *> mDeviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
 
     void pick_physical_device();
     void create_logical_device();
