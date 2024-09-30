@@ -146,11 +146,11 @@ bool VulkanDevice::check_device_extension_support(VkPhysicalDevice physicalDevic
 }
 
 void VulkanDevice::create_logical_device() {
-    QueueFamilyIndices indices = find_queue_families(mPhysicalDevice);
+    mQueueFamiles = find_queue_families(mPhysicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),
-                                              indices.presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {mQueueFamiles.graphicsFamily.value(),
+                                              mQueueFamiles.presentFamily.value()};
 
     float queuePriority = 1.0F;
     for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -189,9 +189,9 @@ void VulkanDevice::create_logical_device() {
 
     MSG_INFO("[Vulkan] Successfully created logical device: {:p}", static_cast<void*>(mDevice));
 
-    vkGetDeviceQueue(mDevice, indices.graphicsFamily.value(), 0, &mGraphicsQueue);
-    vkGetDeviceQueue(mDevice, indices.presentFamily.value(), 0, &mPresentQueue);
-    vkGetDeviceQueue(mDevice, indices.transferFamily.value(), 0, &mTransferQueue);
+    vkGetDeviceQueue(mDevice, mQueueFamiles.graphicsFamily.value(), 0, &mGraphicsQueue);
+    vkGetDeviceQueue(mDevice, mQueueFamiles.presentFamily.value(), 0, &mPresentQueue);
+    vkGetDeviceQueue(mDevice, mQueueFamiles.transferFamily.value(), 0, &mTransferQueue);
 
     MSG_INFO("[Vulkan] Required Device queues successfully bound");
 }

@@ -6,7 +6,7 @@ BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeColon
 Cpp11BracedListStyle: true
-DerivePointerAlignment: true
+PointerAlignment: Left
 IndentCaseLabels: true
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All

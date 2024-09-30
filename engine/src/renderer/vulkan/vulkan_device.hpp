@@ -6,15 +6,12 @@
 #include <vulkan/vulkan.h>
 
 class VulkanDevice {
-public:
-    VulkanDevice(const VulkanDevice &) = default;
-    VulkanDevice(VulkanDevice &&) = delete;
-    VulkanDevice &operator=(const VulkanDevice &) = delete;
-    VulkanDevice &operator=(VulkanDevice &&) = delete;
-    VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char *> &validationLayers);
-    ~VulkanDevice();
+    struct SwapChainSupportDetails {
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
 
-private:
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -29,12 +26,19 @@ private:
         }
     };
 
-    struct SwapChainSupportDetails {
-        VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
-    };
+public:
+    VulkanDevice(const VulkanDevice&) = default;
+    VulkanDevice(VulkanDevice&&) = delete;
+    VulkanDevice& operator=(const VulkanDevice&) = delete;
+    VulkanDevice& operator=(VulkanDevice&&) = delete;
+    VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers);
+    ~VulkanDevice();
+    [[nodiscard]] const SwapChainSupportDetails& get_swapchain_support_details() const { return mSwapChainSupport; }
+    [[nodiscard]] const VkDevice& get_logical_device() const { return mDevice; }
+    [[nodiscard]] const VkSurfaceKHR& get_surface() const { return mSurface; }
+    [[nodiscard]] const QueueFamilyIndices& get_queue_families() const { return mQueueFamiles; }
 
+private:
     VkInstance mInstance{nullptr};
     VkSurfaceKHR mSurface{nullptr};
     VkPhysicalDevice mPhysicalDevice{nullptr};
@@ -42,15 +46,16 @@ private:
     VkPhysicalDeviceFeatures mDeviceFeatures{};
     VkPhysicalDeviceMemoryProperties mDeviceMemoryProperties{};
     SwapChainSupportDetails mSwapChainSupport{};
+    QueueFamilyIndices mQueueFamiles{};
     VkDevice mDevice{nullptr};
     VkQueue mGraphicsQueue{nullptr};
     VkQueue mPresentQueue{nullptr};
     VkQueue mTransferQueue{nullptr};
 
-    std::vector<const char *> mValidationLayers;
+    std::vector<const char*> mValidationLayers;
 
     //TODO: Make this configurable
-    const std::vector<const char *> mDeviceExtensions = {
+    const std::vector<const char*> mDeviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 
