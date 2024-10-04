@@ -6,9 +6,8 @@
 #include <set>
 #include <vector>
 
-VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers) : mInstance{instance},
-                                                                                                                          mSurface{surface},
-                                                                                                                          mValidationLayers{validationLayers} {
+VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers)
+    : mInstance{instance}, mSurface{surface}, mValidationLayers{validationLayers} {
     pick_physical_device();
     create_logical_device();
     MSG_INFO("[Vulkan] Device: {:p} initialized", static_cast<void*>(this));
@@ -58,8 +57,10 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
         swapChainAdequate = !mSwapChainSupport.formats.empty() && !mSwapChainSupport.presentModes.empty();
     }
 
-    if (mDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && (mDeviceFeatures.geometryShader != VK_TRUE)) {
-        MSG_INFO("[Vulkan] Device: {} is not a discrete GPU and does not support geometry shaders!", mDeviceProperties.deviceName);
+    if (mDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+        (mDeviceFeatures.geometryShader != VK_TRUE)) {
+        MSG_INFO("[Vulkan] Device: {} is not a discrete GPU and does not support geometry shaders!",
+                 mDeviceProperties.deviceName);
         return false;
     }
 
@@ -83,6 +84,14 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
         return false;
     }
 
+    VkFormat depthFormat{};
+    if (!query_device_depth_format(physicalDevice, depthFormat)) {
+        MSG_INFO("[Vulkan] Device: {} does not have a supported depth format!", mDeviceProperties.deviceName);
+        return false;
+    }
+
+    mDepthFormat = depthFormat;
+
     MSG_INFO("[Vulkan] Device: {} fulfills all requirements and is suitable", mDeviceProperties.deviceName);
 
     MSG_INFO("[Vulkan] Selected device: '{}'.", mDeviceProperties.deviceName);
@@ -105,24 +114,18 @@ bool VulkanDevice::is_device_suitable(VkPhysicalDevice physicalDevice) {
             MSG_INFO("[Vulkan] GPU type is CPU.");
             break;
     }
-    MSG_INFO(
-        "[Vulkan] GPU Driver version: {}.{}.{}",
-        VK_VERSION_MAJOR(mDeviceProperties.driverVersion),
-        VK_VERSION_MINOR(mDeviceProperties.driverVersion),
-        VK_VERSION_PATCH(mDeviceProperties.driverVersion));
+    MSG_INFO("[Vulkan] GPU Driver version: {}.{}.{}", VK_VERSION_MAJOR(mDeviceProperties.driverVersion),
+             VK_VERSION_MINOR(mDeviceProperties.driverVersion), VK_VERSION_PATCH(mDeviceProperties.driverVersion));
     // Vulkan API version.
-    MSG_INFO(
-        "[Vulkan] Vulkan API version: {}.{}.{}",
-        VK_VERSION_MAJOR(mDeviceProperties.apiVersion),
-        VK_VERSION_MINOR(mDeviceProperties.apiVersion),
-        VK_VERSION_PATCH(mDeviceProperties.apiVersion));
+    MSG_INFO("[Vulkan] Vulkan API version: {}.{}.{}", VK_VERSION_MAJOR(mDeviceProperties.apiVersion),
+             VK_VERSION_MINOR(mDeviceProperties.apiVersion), VK_VERSION_PATCH(mDeviceProperties.apiVersion));
     // Memory information
     // TODO: Refactor some of these magic numbers
     for (const auto& memoryHeap : mDeviceMemoryProperties.memoryHeaps) {
         f32 memory_size_gib = (((f32)memoryHeap.size) / 1024.0F / 1024.0F / 1024.0F);
         if ((memoryHeap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != VK_FALSE) {
             MSG_INFO("[Vulkan] Local GPU memory: {:.2f} GiB", memory_size_gib);
-        } else {
+        } else if (memoryHeap.size > 0) {
             MSG_INFO("[Vulkan] Shared System memory: {:.2f} GiB", memory_size_gib);
         }
     }
@@ -143,6 +146,27 @@ bool VulkanDevice::check_device_extension_support(VkPhysicalDevice physicalDevic
     }
 
     return requiredExtensions.empty();
+}
+
+bool VulkanDevice::query_device_depth_format(VkPhysicalDevice physicalDevice, VkFormat& outFormat) {
+    auto candidates = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkFormatFeatureFlags featureFlags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    for (VkFormat format : candidates) {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+
+        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & featureFlags) == featureFlags) {
+            outFormat = format;
+            return true;
+        }
+        if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & featureFlags) == featureFlags) {
+            outFormat = format;
+            return true;
+        }
+    }
+    return false;
 }
 
 void VulkanDevice::create_logical_device() {
@@ -242,12 +266,8 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDev
         i++;
     }
 
-    MSG_INFO("[Vulkan] {} | {} | {} | {} | {}",
-             indices.graphicsFamily.value_or(-1),
-             indices.presentFamily.value_or(-1),
-             indices.computeFamily.value_or(-1),
-             indices.transferFamily.value_or(-1),
-             mDeviceProperties.deviceName);
+    MSG_INFO("[Vulkan] {} | {} | {} | {} | {}", indices.graphicsFamily.value_or(-1), indices.presentFamily.value_or(-1),
+             indices.computeFamily.value_or(-1), indices.transferFamily.value_or(-1), mDeviceProperties.deviceName);
 
     return indices;
 }
@@ -272,7 +292,8 @@ VulkanDevice::SwapChainSupportDetails VulkanDevice::query_swapchain_support(VkPh
 
     if (presentModeCount != 0) {
         details.presentModes.resize(presentModeCount);
-        VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, mSurface, &presentModeCount, details.presentModes.data()));
+        VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, mSurface, &presentModeCount,
+                                                           details.presentModes.data()));
     }
 
     return details;

@@ -19,9 +19,7 @@ class VulkanDevice {
         std::optional<uint32_t> transferFamily;
 
         [[nodiscard]] bool is_complete() const {
-            return graphicsFamily.has_value() &&
-                presentFamily.has_value() &&
-                computeFamily.has_value() &&
+            return graphicsFamily.has_value() && presentFamily.has_value() && computeFamily.has_value() &&
                 transferFamily.has_value();
         }
     };
@@ -37,6 +35,10 @@ public:
     [[nodiscard]] const VkDevice& get_logical_device() const { return mDevice; }
     [[nodiscard]] const VkSurfaceKHR& get_surface() const { return mSurface; }
     [[nodiscard]] const QueueFamilyIndices& get_queue_families() const { return mQueueFamiles; }
+    [[nodiscard]] const VkFormat& get_depth_format() const { return mDepthFormat; }
+    [[nodiscard]] const VkPhysicalDeviceMemoryProperties& get_memory_properties() const {
+        return mDeviceMemoryProperties;
+    }
 
 private:
     VkInstance mInstance{nullptr};
@@ -51,18 +53,21 @@ private:
     VkQueue mGraphicsQueue{nullptr};
     VkQueue mPresentQueue{nullptr};
     VkQueue mTransferQueue{nullptr};
+    VkFormat mDepthFormat{};
 
     std::vector<const char*> mValidationLayers;
 
     //TODO: Make this configurable
-    const std::vector<const char*> mDeviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const std::vector<const char*> mDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 
     void pick_physical_device();
     void create_logical_device();
+
     bool is_device_suitable(VkPhysicalDevice physicalDevice);
     bool check_device_extension_support(VkPhysicalDevice physicalDevice);
+
+    bool query_device_depth_format(VkPhysicalDevice physicalDevice, VkFormat& format);
     QueueFamilyIndices find_queue_families(VkPhysicalDevice physicalDevice);
     SwapChainSupportDetails query_swapchain_support(VkPhysicalDevice physicalDevice);
 };
