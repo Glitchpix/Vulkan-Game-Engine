@@ -7,19 +7,15 @@
 #include "renderer/renderer.hpp"
 
 
-Application::Application(Game &game, EventManager &eventManager)
-    : mX{game.mX}, mY{game.mY}, mWidth{game.mWidth}, mHeight{game.mHeight},
-      mName{game.mName}, mRunning{true}, mGame{game}, mEventManager{eventManager} {
+Application::Application(Game& game, EventManager& eventManager)
+    : mX{game.mX}, mY{game.mY}, mWidth{game.mWidth}, mHeight{game.mHeight}, mName{game.mName}, mRunning{true},
+      mGame{game}, mEventManager{eventManager} {
     // TODO: Enforce single instance?
     mInputHandler = std::make_unique<InputHandler>(mEventManager);
 
-    mEventManager.register_event(
-        EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, this,
-        Application::on_event);
-    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_KEY_PRESSED,
-                                 this, Application::on_key);
-    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED,
-                                 this, Application::on_key);
+    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, this, Application::on_event);
+    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_KEY_PRESSED, this, Application::on_key);
+    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED, this, Application::on_key);
     mEventManager.register_event(EventManager::EventCode::EVENT_CODE_MOUSE_MOVED, this, Application::on_mouse_move);
 
     mPlatform = std::make_unique<Platform>(mInputHandler.get());
@@ -31,16 +27,16 @@ Application::Application(Game &game, EventManager &eventManager)
 
     mClock = std::make_unique<Clock>(mPlatform.get());
 
-    mRenderer = std::make_unique<Renderer>(game.mName, mPlatform.get());
+    mRenderer = std::make_unique<Renderer>(game.mName, mPlatform.get(), game.mWidth, game.mHeight);
 
     if (!(mGame.initialize())) {
         MSG_FATAL("Game failed to initialize!");
         // TODO: Probably throw an exception here too...
     }
-    MSG_TRACE("Game: {:p} initialized", static_cast<void *>(&mGame));
+    MSG_TRACE("Game: {:p} initialized", static_cast<void*>(&mGame));
 
     mGame.on_resize(mWidth, mHeight);
-    MSG_TRACE("Application: {:p} created", static_cast<void *>(this));
+    MSG_TRACE("Application: {:p} created", static_cast<void*>(this));
 }
 
 Application::~Application() = default;
@@ -89,26 +85,21 @@ bool Application::run() {
 
     mRunning = false;
 
-    mEventManager.unregister_event(
-        EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, this,
-        Application::on_event);
-    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_KEY_PRESSED,
-                                   this, Application::on_key);
-    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED,
-                                   this, Application::on_key);
+    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, this, Application::on_event);
+    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_KEY_PRESSED, this, Application::on_key);
+    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED, this, Application::on_key);
 
     mPlatform->shutdown();
 
     return true;
 }
 
-bool Application::on_event(EventManager::EventCode code, void * /*unused*/,
-                           void *listener, EventManager::Context /*unused*/) {
-    auto *instance = static_cast<Application *>(listener);
+bool Application::on_event(EventManager::EventCode code, void* /*unused*/, void* listener,
+                           EventManager::Context /*unused*/) {
+    auto* instance = static_cast<Application*>(listener);
     switch (code) {
         case EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT:
-            MSG_TRACE(
-                "EVENT_CODE_APPLICATION_QUIT recieved, shutting down application");
+            MSG_TRACE("EVENT_CODE_APPLICATION_QUIT recieved, shutting down application");
             instance->mRunning = false;
             return true;
         default:
@@ -117,17 +108,16 @@ bool Application::on_event(EventManager::EventCode code, void * /*unused*/,
     return false;
 }
 
-bool Application::on_key(EventManager::EventCode code, void * /*unused*/,
-                         void *listener, EventManager::Context context) {
+bool Application::on_key(EventManager::EventCode code, void* /*unused*/, void* listener,
+                         EventManager::Context context) {
     //TODO: Remove/Replace some debug information here
-    auto *instance = static_cast<Application *>(listener);
+    auto* instance = static_cast<Application*>(listener);
     if (code == EventManager::EventCode::EVENT_CODE_KEY_PRESSED) {
-        auto keyCode = static_cast<InputHandler::Key>(context.i16[0]);
+        const auto keyCode = static_cast<InputHandler::Key>(context.i16[0]);
         if (keyCode == InputHandler::Key::KEY_ESCAPE) {
             EventManager::Context quitContext{};
-            instance->mEventManager.fire_event(
-                EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, listener,
-                quitContext);
+            instance->mEventManager.fire_event(EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, listener,
+                                               quitContext);
             return true;
         }
         if (keyCode == InputHandler::Key::KEY_A) {
@@ -147,8 +137,8 @@ bool Application::on_key(EventManager::EventCode code, void * /*unused*/,
 }
 
 
-bool Application::on_mouse_move(EventManager::EventCode code, void * /*unused*/,
-                                void * /*unused*/, EventManager::Context context) {
+bool Application::on_mouse_move(EventManager::EventCode code, void* /*unused*/, void* /*unused*/,
+                                EventManager::Context context) {
     //TODO: Remove/Replace some debug information here
     // auto *instance = static_cast<Application *>(listener);
     if (code == EventManager::EventCode::EVENT_CODE_MOUSE_MOVED) {

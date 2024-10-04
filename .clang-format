@@ -14,3 +14,4 @@ ReflowComments: false
 SkipMacroDefinitionBody: true
 SpaceBeforeCpp11BracedList: false
 SpacesBeforeTrailingComments: 2
+ColumnLimit: 120
