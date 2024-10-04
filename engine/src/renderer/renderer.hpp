@@ -16,11 +16,11 @@ public:
     Renderer(Renderer&&) = delete;
     Renderer& operator=(const Renderer&) = delete;
     Renderer& operator=(Renderer&&) = delete;
-    Renderer(std::string applicationName, Platform* platform);
+    Renderer(std::string applicationName, Platform* platform, i16 width, i16 height);
     ~Renderer();
 
     void on_resize(i16 width, i16 height);
-    bool draw_frame(RenderPacket& renderPacket);
+    bool draw_frame(const RenderPacket& renderPacket);
 
 private:
     std::unique_ptr<RendererBackend> mRenderer;

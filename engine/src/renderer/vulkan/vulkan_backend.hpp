@@ -1,13 +1,15 @@
 #pragma once
 
-#include "core/logger.hpp"
 #include "defines.hpp"
 #include "renderer/renderer_backend.hpp"
-#include "vulkan_device.hpp"
 
 #include <memory>
+#include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
+
+class VulkanDevice;
+class VulkanSwapchain;
 
 class VulkanRenderer : public RendererBackend {
 public:
@@ -15,7 +17,7 @@ public:
     VulkanRenderer(VulkanRenderer&&) = delete;
     VulkanRenderer& operator=(const VulkanRenderer&) = delete;
     VulkanRenderer& operator=(VulkanRenderer&&) = delete;
-    VulkanRenderer(std::string applicationName, Platform* platform);
+    VulkanRenderer(std::string applicationName, Platform* platform, i16 width, i16 height);
     ~VulkanRenderer() override;
 
     void resized(i16 width, i16 height) override;
@@ -28,6 +30,7 @@ private:
     VkSurfaceKHR mSurface{nullptr};
     VkDebugUtilsMessengerEXT mDebugMessenger{nullptr};
     std::unique_ptr<VulkanDevice> mDevice;
+    std::unique_ptr<VulkanSwapchain> mSwapchain;
 
     bool mEnableValidationLayers{false};
     std::vector<const char*> mValidationLayers;
@@ -41,9 +44,8 @@ private:
                                                  const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                                  const VkAllocationCallbacks* pAllocator,
                                                  VkDebugUtilsMessengerEXT* pDebugMessenger);
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData);
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                         void* pUserData);
 };

@@ -4,20 +4,21 @@
 #include "vulkan/vulkan_backend.hpp"
 
 
-Renderer::Renderer(std::string applicationName, Platform *platform) {
+Renderer::Renderer(std::string applicationName, Platform* platform, i16 width, i16 height) {
     //TODO: make renderer configurable
-    mRenderer = std::make_unique<VulkanRenderer>(applicationName, platform);
-    MSG_TRACE("Renderer: {:p} created", static_cast<void *>(this));
+    mRenderer = std::make_unique<VulkanRenderer>(applicationName, platform, width, height);
+    MSG_TRACE("Renderer: {:p} created", static_cast<void*>(this));
 }
 
 Renderer::~Renderer() = default;
 
-void Renderer::on_resize(i16 /*unused*/, i16 /*unused*/) {
+void Renderer::on_resize(i16 width, i16 height) {
     //TODO: handle resize
     MSG_ERROR("Resize not implemented yet!");
+    mRenderer->resized(width, height);
 }
 
-bool Renderer::draw_frame(RenderPacket &renderPacket) {
+bool Renderer::draw_frame(const RenderPacket& renderPacket) {
     if (!mRenderer->begin_frame(renderPacket.deltaTime)) {
         MSG_WARN("Frame failed to start rendering");
         return false;

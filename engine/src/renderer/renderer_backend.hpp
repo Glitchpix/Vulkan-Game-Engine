@@ -16,7 +16,8 @@ public:
     RendererBackend(RendererBackend&&) = delete;
     RendererBackend& operator=(const RendererBackend&) = default;
     RendererBackend& operator=(RendererBackend&&) = delete;
-    RendererBackend(Platform* platform, BackendType backendType) : mPlatform{platform}, mBackendType{backendType} {};
+    RendererBackend(Platform* platform, BackendType backendType, i16 width, i16 height)
+        : mPlatform{platform}, mBackendType{backendType}, mWidth{width}, mHeight{height} {};
     virtual ~RendererBackend() = default;
 
     virtual void resized(i16 width, i16 height) = 0;
@@ -27,4 +28,6 @@ public:
 protected:
     Platform* mPlatform;
     BackendType mBackendType;
+    i16 mWidth{0};
+    i16 mHeight{0};
 };

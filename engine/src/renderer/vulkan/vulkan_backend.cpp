@@ -3,13 +3,16 @@
 #include "vulkan_defines.inl"
 #include "vulkan_device.hpp"
 #include "vulkan_platform.hpp"
+#include "vulkan_swapchain.hpp"
+
 
 #include <cstddef>
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
 
-VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN) {
+VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, i16 width, i16 height)
+    : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN, width, height) {
 #if defined(_DEBUG)
     mEnableValidationLayers = true;
 #endif
@@ -66,6 +69,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
 
     // Device setup
     mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface, mValidationLayers);
+    mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, mWidth, mHeight);
 
     MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
 };
@@ -73,10 +77,11 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform) 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
     // Reset pointer to members here since otherwise the destructors will be called in the wrong order (as expected by Vulkan)
+    mSwapchain.reset();
     mDevice.reset();
     if (mEnableValidationLayers) {
-        auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(mInstance,
-                                                                                                "vkDestroyDebugUtilsMessengerEXT"));
+        auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+            vkGetInstanceProcAddr(mInstance, "vkDestroyDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             func(mInstance, mDebugMessenger, nullptr);
         }
@@ -152,11 +157,9 @@ void VulkanRenderer::populate_debug_messenger_create_info(VkDebugUtilsMessengerC
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debug_callback;
 }
 
@@ -172,11 +175,10 @@ void VulkanRenderer::setup_debug_messenger() {
     MSG_DEBUG("[Vulkan] Debug messenger created");
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT /*unused*/,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* /*unused*/) {
+VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                              VkDebugUtilsMessageTypeFlagsEXT /*unused*/,
+                                                              const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                              void* /*unused*/) {
 
     switch (messageSeverity) {
         default:
@@ -201,8 +203,8 @@ VkResult VulkanRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance,
                                                       const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                                       const VkAllocationCallbacks* pAllocator,
                                                       VkDebugUtilsMessengerEXT* pDebugMessenger) {
-    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance,
-                                                                                           "vkCreateDebugUtilsMessengerEXT"));
+    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+        vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     }
