@@ -1,45 +1,47 @@
 #pragma once
 #include "defines.hpp"
+#include <memory>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
 class VulkanDevice;
-
+class VulkanImage;
 class VulkanSwapchain {
 public:
-    VulkanSwapchain(VulkanDevice& device, i16 width, i16 height);
+    VulkanSwapchain(VulkanDevice& device, uint32_t width, uint32_t height);
     ~VulkanSwapchain();
 
-    VulkanSwapchain(const VulkanSwapchain&) = default;
+    VulkanSwapchain(const VulkanSwapchain&) = delete;
     VulkanSwapchain(VulkanSwapchain&&) = delete;
-    VulkanSwapchain& operator=(const VulkanSwapchain&) = default;
+    VulkanSwapchain& operator=(const VulkanSwapchain&) = delete;
     VulkanSwapchain& operator=(VulkanSwapchain&&) = delete;
 
-    void recreate(i16 width, i16 height);
+    void recreate(uint32_t width, uint32_t height);
 
-    bool acquire_next_image_index();
+    [[nodiscard]] bool acquire_next_image_index(size_t timeout_ns, VkSemaphore imageAvailable, VkFence imageFence,
+                                                uint32_t& outImageIndex);
 
-    void present();
+    void present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete);
 
 private:
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-private-field"
     VulkanDevice* mDevice{nullptr};
-    i16 mWidth{0};
-    i16 mHeight{0};
     VkSwapchainKHR mHandle{nullptr};
 
-
-    size_t mMaxFramesInFlight{0};
-    size_t mImageCount{0};
-#pragma clang diagnostic pop
-    std::vector<VkImage> mImages;
-    VkFormat mImageFormat{};
     VkExtent2D mImageExtent{};
+    VkSurfaceFormatKHR mImageFormat{};
+
+    uint32_t mImageCount{0};
+    std::vector<VkImage> mImages;
     std::vector<VkImageView> mViews;
 
+    size_t mMaxFramesInFlight{2};
+    VkPresentModeKHR mPresentMode{};
 
+    std::unique_ptr<VulkanImage> mDepthAttachment{nullptr};
+
+    void create(uint32_t width, uint32_t height);
+    void destroy();
     VkSurfaceFormatKHR choose_swap_surface_format(std::vector<VkSurfaceFormatKHR> formats);
     VkPresentModeKHR choose_swap_present_mode(std::vector<VkPresentModeKHR> presentModes);
-    VkExtent2D choose_swap_extent(VkSurfaceCapabilitiesKHR capabilities);
+    VkExtent2D choose_swap_extent(VkSurfaceCapabilitiesKHR capabilities, uint32_t width, uint32_t height);
 };
