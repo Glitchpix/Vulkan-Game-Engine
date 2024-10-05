@@ -132,6 +132,8 @@ bool VulkanSwapchain::acquire_next_image_index(size_t timeout_ns, VkSemaphore im
     return true;
 };
 
+const VkFormat& VulkanSwapchain::get_image_depth_format() const { return mDepthAttachment->get_format(); }
+
 void VulkanSwapchain::present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete) {
     VkPresentInfoKHR presentInfo;
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

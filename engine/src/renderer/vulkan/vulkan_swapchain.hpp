@@ -20,6 +20,8 @@ public:
 
     [[nodiscard]] bool acquire_next_image_index(size_t timeout_ns, VkSemaphore imageAvailable, VkFence imageFence,
                                                 uint32_t& outImageIndex);
+    [[nodiscard]] const VkFormat& get_image_color_format() const { return mImageFormat.format; };
+    [[nodiscard]] const VkFormat& get_image_depth_format() const;
 
     void present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete);
 
