@@ -10,6 +10,7 @@
 
 class VulkanDevice;
 class VulkanSwapchain;
+class RenderPass;
 
 class VulkanRenderer : public RendererBackend {
 public:
@@ -17,10 +18,10 @@ public:
     VulkanRenderer(VulkanRenderer&&) = delete;
     VulkanRenderer& operator=(const VulkanRenderer&) = delete;
     VulkanRenderer& operator=(VulkanRenderer&&) = delete;
-    VulkanRenderer(std::string applicationName, Platform* platform, i16 width, i16 height);
+    VulkanRenderer(std::string applicationName, Platform* platform, uint32_t width, uint32_t height);
     ~VulkanRenderer() override;
 
-    void resized(i16 width, i16 height) override;
+    void resized(uint32_t width, uint32_t height) override;
 
     bool begin_frame(f64 deltaTime) override;
     bool end_frame(f64 deltaTime) override;
@@ -31,6 +32,7 @@ private:
     VkDebugUtilsMessengerEXT mDebugMessenger{nullptr};
     std::unique_ptr<VulkanDevice> mDevice;
     std::unique_ptr<VulkanSwapchain> mSwapchain;
+    std::unique_ptr<RenderPass> mRenderpass;
 
     bool mEnableValidationLayers{false};
     std::vector<const char*> mValidationLayers;

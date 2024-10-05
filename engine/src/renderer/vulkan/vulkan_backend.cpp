@@ -3,15 +3,17 @@
 #include "vulkan_defines.inl"
 #include "vulkan_device.hpp"
 #include "vulkan_platform.hpp"
+#include "vulkan_renderpass.hpp"
 #include "vulkan_swapchain.hpp"
 
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
 
-VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, i16 width, i16 height)
+VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, uint32_t width, uint32_t height)
     : RendererBackend(platform, RendererBackend::BackendType::RENDERER_BACKEND_TYPE_VULKAN, width, height) {
 #if defined(_DEBUG)
     mEnableValidationLayers = true;
@@ -64,12 +66,18 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
     }
     setup_debug_messenger();
 
-    // Surface setup
     mSurface = vulkanplatform::create_platform_surface(*mPlatform, mInstance);
-
-    // Device setup
     mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface, mValidationLayers);
     mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, mWidth, mHeight);
+
+    // TODO: Temp values
+    // Change width & height to framebuffer height and width
+    VkRect2D renderArea{.offset = VkOffset2D{.x = 0, .y = 0}, .extent = VkExtent2D{.width = width, .height = height}};
+    VkClearColorValue clearColor{.float32{1.0F, 0.0F, 0.0F, 1.0F}};
+    VkClearDepthStencilValue depthStencil{.depth = 1.0F, .stencil = 0};
+
+    mRenderpass =
+        std::make_unique<RenderPass>(mDevice->get_logical_device(), *mSwapchain, renderArea, clearColor, depthStencil);
 
     MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
 };
@@ -77,6 +85,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
     // Reset pointer to members here since otherwise the destructors will be called in the wrong order (as expected by Vulkan)
+    mRenderpass.reset();
     mSwapchain.reset();
     mDevice.reset();
     if (mEnableValidationLayers) {
@@ -90,11 +99,11 @@ VulkanRenderer::~VulkanRenderer() {
     vkDestroyInstance(mInstance, nullptr);
 }
 
-void VulkanRenderer::resized(i16 /*width*/, i16 /*height*/) {
+void VulkanRenderer::resized(uint32_t /*width*/, uint32_t /*height*/) {
     //TODO
 }
 
-bool VulkanRenderer::begin_frame(f64) {
+bool VulkanRenderer::begin_frame(f64 /*deltaTime*/) {
     //TODO
     return true;
 }
