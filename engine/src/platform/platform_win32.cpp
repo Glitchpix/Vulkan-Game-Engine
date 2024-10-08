@@ -1,4 +1,6 @@
+#include "core/event.hpp"
 #include "platform.hpp"
+#include <memory>
 #if ENGINE_PLATFORM_WINDOWS
 #define NOMINMAX
 #include "core/input.hpp"
@@ -11,8 +13,9 @@
 #include <windowsx.h>  // param input extraction
 
 
-Platform::Platform(InputHandler* inputHandler) : mInputHandler{inputHandler} {
+Platform::Platform(InputHandler& inputHandler, EventManager& eventHandler) {
     mState = std::make_unique<WindowsState>();
+    mContext = std::make_unique<EventContext>(&inputHandler, &eventHandler);
     MSG_TRACE("Platform: {:p} created", static_cast<void*>(this));
 }
 bool Platform::startup(const std::string& application_name, int x, int y, int width, int height) {
@@ -68,10 +71,9 @@ bool Platform::startup(const std::string& application_name, int x, int y, int wi
     window_width += border_rect.right - border_rect.left;
     window_height += border_rect.bottom - border_rect.top;
 
-    HWND handle = CreateWindowExA(
-        window_ex_style, "engine_window_class", application_name.c_str(),
-        window_style, window_x, window_y, window_width, window_height,
-        nullptr, nullptr, dynamic_cast<WindowsState*>(mState.get())->h_instance, mInputHandler);
+    HWND handle = CreateWindowExA(window_ex_style, "engine_window_class", application_name.c_str(), window_style,
+                                  window_x, window_y, window_width, window_height, nullptr, nullptr,
+                                  dynamic_cast<WindowsState*>(mState.get())->h_instance, mContext.get());
 
     if (handle == nullptr) {
         MessageBoxA(nullptr, "Window creation failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
@@ -141,31 +143,28 @@ double Platform::getAbsoluteTime() const {
     return (double)now_time.QuadPart * mClock_frequency;
 }
 
-Platform::State* Platform::getState() {
-    return mState.get();
-}
+Platform::State* Platform::getState() { return mState.get(); }
 
-void Platform::sleep(std::size_t ms) {
-    Sleep(static_cast<DWORD>(ms));
-}
+void Platform::sleep(std::size_t ms) { Sleep(static_cast<DWORD>(ms)); }
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     // Get pointer to platform instance of input handler
-    InputHandler* inputHandler = nullptr;
+    Platform::EventContext* eventContext = nullptr;
     if (msg == WM_CREATE) {
         auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-        inputHandler = reinterpret_cast<InputHandler*>(pCreate->lpCreateParams);
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(inputHandler));
+        eventContext = reinterpret_cast<Platform::EventContext*>(pCreate->lpCreateParams);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(eventContext));
     } else {
         LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-        inputHandler = reinterpret_cast<InputHandler*>(ptr);
+        eventContext = reinterpret_cast<Platform::EventContext*>(ptr);
     }
     switch (msg) {
         case WM_ERASEBKGND:
             return 1;
         case WM_CLOSE:
-            // TODO: Fire quit event here
-            return 0;
+            eventContext->eventManager->fire_event(EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT,
+                                                   static_cast<void*>(hwnd), EventManager::Context{});
+            return 1;
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
@@ -182,19 +181,19 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
         case WM_SYSKEYUP: {
             bool pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
             auto key = static_cast<InputHandler::Key>(wParam);
-            inputHandler->process_key(key, pressed);
+            eventContext->inputHandler->process_key(key, pressed);
         } break;
         case WM_MOUSEMOVE: {
             i16 x_position = static_cast<i16>(GET_X_LPARAM(lParam));
             i16 y_position = static_cast<i16>(GET_Y_LPARAM(lParam));
 
-            inputHandler->process_mouse_move(x_position, y_position);
+            eventContext->inputHandler->process_mouse_move(x_position, y_position);
         } break;
         case WM_MOUSEWHEEL: {
             i8 z_delta = static_cast<i8>(GET_WHEEL_DELTA_WPARAM(wParam));
             if (z_delta != 0) {
                 z_delta = (z_delta < 0) ? -1 : 1;
-                inputHandler->process_mouse_wheel(z_delta);
+                eventContext->inputHandler->process_mouse_wheel(z_delta);
             }
         } break;
         case WM_LBUTTONDOWN:
@@ -219,7 +218,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
                     button = InputHandler::Button::BUTTON_MIDDLE;
                     break;
             }
-            inputHandler->process_button(button, pressed);
+            eventContext->inputHandler->process_button(button, pressed);
         } break;
     }
 

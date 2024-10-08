@@ -18,7 +18,7 @@ Application::Application(Game& game, EventManager& eventManager)
     mEventManager.register_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED, this, Application::on_key);
     mEventManager.register_event(EventManager::EventCode::EVENT_CODE_MOUSE_MOVED, this, Application::on_mouse_move);
 
-    mPlatform = std::make_unique<Platform>(mInputHandler.get());
+    mPlatform = std::make_unique<Platform>(*mInputHandler, mEventManager);
     if (!(mPlatform->startup(mName, mX, mY, mWidth, mHeight))) {
         MSG_FATAL("Failed to start platform window!");
         // TODO: Probably throw an exception here too...

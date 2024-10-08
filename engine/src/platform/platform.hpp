@@ -7,6 +7,7 @@
 #include <string>
 
 class InputHandler;
+class EventManager;
 class Platform {
 public:
     struct State {
@@ -18,15 +19,19 @@ public:
         virtual ~State() = default;
     };
 
+    struct EventContext {
+        InputHandler* inputHandler;
+        EventManager* eventManager;
+    };
+
     Platform(const Platform&) = delete;
     Platform(Platform&&) = delete;
     Platform& operator=(const Platform&) = delete;
     Platform& operator=(Platform&&) = delete;
-    Platform(InputHandler* InputHandler);
+    Platform(InputHandler& inputHandler, EventManager& eventHandler);
     ~Platform() = default;
 
-    bool startup(const std::string& application_name,
-                 int x, int y, int width, int height);
+    bool startup(const std::string& application_name, int x, int y, int width, int height);
     void shutdown();
     bool pumpMessages();
 
@@ -39,6 +44,6 @@ public:
 
 private:
     std::unique_ptr<State> mState;
+    std::unique_ptr<EventContext> mContext;
     double mClock_frequency{};
-    InputHandler* mInputHandler;
 };
