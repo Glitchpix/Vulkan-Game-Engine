@@ -13,12 +13,19 @@ public:
     };
     VulkanCommandBuffer(VkDevice& device, VkCommandPool& pool, bool isPrimary);
     ~VulkanCommandBuffer();
-    void begin();
-    void end();
+
+    void update_submitted();
+    void reset_state();
+    void begin_single_use();
+    void end_single_use(VkQueue queue);
 
 private:
     VkDevice mDevice;
     VkCommandPool mCommandPool;
     VkCommandBuffer mHandle;
     State mState;
+    bool mPrimary;
+
+    void begin(bool singleUse, bool continueRenderpass, bool simultaneous);
+    void end();
 };
