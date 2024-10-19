@@ -14,6 +14,7 @@ VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std:
 }
 
 VulkanDevice::~VulkanDevice() {
+    vkDestroyCommandPool(mDevice, mGraphicsCommandPool, nullptr);
     vkDestroyDevice(mDevice, nullptr);
     MSG_INFO("[Vulkan] Device: {:p} destroyed", static_cast<void*>(this));
 }
@@ -218,6 +219,16 @@ void VulkanDevice::create_logical_device() {
     vkGetDeviceQueue(mDevice, mQueueFamiles.transferFamily.value(), 0, &mTransferQueue);
 
     MSG_INFO("[Vulkan] Required Device queues successfully bound");
+
+    VkCommandPoolCreateInfo poolCreateInfo;
+    poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolCreateInfo.queueFamilyIndex = mQueueFamiles.graphicsFamily.value();
+    poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolCreateInfo.pNext = nullptr;
+
+    VK_CHECK(vkCreateCommandPool(mDevice, &poolCreateInfo, nullptr, &mGraphicsCommandPool));
+
+    MSG_INFO("[Vulkan] Graphics command pool created!");
 }
 
 VulkanDevice::QueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDevice physicalDevice) {

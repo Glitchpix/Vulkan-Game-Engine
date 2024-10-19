@@ -31,13 +31,26 @@ public:
     VulkanDevice& operator=(VulkanDevice&&) = delete;
     VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers);
     ~VulkanDevice();
-    [[nodiscard]] const SwapChainSupportDetails& get_swapchain_support_details() const { return mSwapChainSupport; }
-    [[nodiscard]] const VkDevice& get_logical_device() const { return mDevice; }
-    [[nodiscard]] const VkSurfaceKHR& get_surface() const { return mSurface; }
-    [[nodiscard]] const QueueFamilyIndices& get_queue_families() const { return mQueueFamiles; }
-    [[nodiscard]] const VkFormat& get_depth_format() const { return mDepthFormat; }
+    [[nodiscard]] const SwapChainSupportDetails& get_swapchain_support_details() const {
+        return mSwapChainSupport;
+    }
+    [[nodiscard]] const VkDevice& get_logical_device() const {
+        return mDevice;
+    }
+    [[nodiscard]] const VkSurfaceKHR& get_surface() const {
+        return mSurface;
+    }
+    [[nodiscard]] const QueueFamilyIndices& get_queue_families() const {
+        return mQueueFamiles;
+    }
+    [[nodiscard]] const VkFormat& get_depth_format() const {
+        return mDepthFormat;
+    }
     [[nodiscard]] const VkPhysicalDeviceMemoryProperties& get_memory_properties() const {
         return mDeviceMemoryProperties;
+    }
+    [[nodiscard]] const VkCommandPool& get_graphics_commandpool() const {
+        return mGraphicsCommandPool;
     }
 
 private:
@@ -53,6 +66,7 @@ private:
     VkQueue mGraphicsQueue{nullptr};
     VkQueue mPresentQueue{nullptr};
     VkQueue mTransferQueue{nullptr};
+    VkCommandPool mGraphicsCommandPool{nullptr};
     VkFormat mDepthFormat{};
 
     std::vector<const char*> mValidationLayers;
