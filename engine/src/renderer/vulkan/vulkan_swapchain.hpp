@@ -22,6 +22,7 @@ public:
                                                 uint32_t& outImageIndex);
     [[nodiscard]] const VkFormat& get_image_color_format() const { return mImageFormat.format; };
     [[nodiscard]] const VkFormat& get_image_depth_format() const;
+    [[nodiscard]] const uint32_t& get_image_count() const { return mImageCount; };
 
     void present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete);
 

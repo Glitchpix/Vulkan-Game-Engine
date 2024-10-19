@@ -1,5 +1,6 @@
 #include "vulkan_backend.hpp"
 #include "core/logger.hpp"
+#include "vulkan_command_buffer.hpp"
 #include "vulkan_defines.inl"
 #include "vulkan_device.hpp"
 #include "vulkan_platform.hpp"
@@ -70,6 +71,7 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
     mDevice = std::make_unique<VulkanDevice>(mInstance, mSurface, mValidationLayers);
     mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, mWidth, mHeight);
 
+
     // TODO: Temp values
     // Change width & height to framebuffer height and width
     VkRect2D renderArea{.offset = VkOffset2D{.x = 0, .y = 0}, .extent = VkExtent2D{.width = width, .height = height}};
@@ -79,12 +81,15 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
     mRenderpass =
         std::make_unique<RenderPass>(mDevice->get_logical_device(), *mSwapchain, renderArea, clearColor, depthStencil);
 
+    create_command_buffers();
+
     MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
 };
 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
     // Reset pointer to members here since otherwise the destructors will be called in the wrong order (as expected by Vulkan)
+    destroy_command_buffers();
     mRenderpass.reset();
     mSwapchain.reset();
     mDevice.reset();
@@ -182,6 +187,19 @@ void VulkanRenderer::setup_debug_messenger() {
 
     VK_CHECK(CreateDebugUtilsMessengerEXT(mInstance, &createInfo, nullptr, &mDebugMessenger));
     MSG_DEBUG("[Vulkan] Debug messenger created");
+}
+
+void VulkanRenderer::create_command_buffers() {
+    size_t swapChainImageCount = mSwapchain->get_image_count();
+    mCommandBuffers.reserve(swapChainImageCount);
+
+    for (size_t i = 0; i < swapChainImageCount; ++i) {
+        mCommandBuffers.emplace_back(mDevice->get_logical_device(), mDevice->get_graphics_commandpool(), true);
+    }
+}
+
+void VulkanRenderer::destroy_command_buffers() {
+    mCommandBuffers.clear();
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
