@@ -11,7 +11,7 @@ public:
         COMMAND_BUFFER_STATE_SUBMITTED,
         COMMAND_BUFFER_STATE_NOT_ALLOCATED
     };
-    VulkanCommandBuffer(VkDevice& device, VkCommandPool& pool, bool isPrimary);
+    VulkanCommandBuffer(const VkDevice& device, const VkCommandPool& pool, bool isPrimary);
     ~VulkanCommandBuffer();
 
     void update_submitted();
@@ -20,8 +20,8 @@ public:
     void end_single_use(VkQueue queue);
 
 private:
-    VkDevice mDevice;
-    VkCommandPool mCommandPool;
+    const VkDevice mDevice;
+    const VkCommandPool mCommandPool;
     VkCommandBuffer mHandle;
     State mState;
     bool mPrimary;

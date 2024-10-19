@@ -2,7 +2,7 @@
 #include "vulkan/vulkan_core.h"
 #include "vulkan_defines.inl"
 
-VulkanCommandBuffer::VulkanCommandBuffer(VkDevice& device, VkCommandPool& pool, bool isPrimary)
+VulkanCommandBuffer::VulkanCommandBuffer(const VkDevice& device, const VkCommandPool& pool, bool isPrimary)
     : mDevice{device}, mCommandPool{pool}, mState(State::COMMAND_BUFFER_STATE_READY), mPrimary{isPrimary} {
     VkCommandBufferAllocateInfo allocateInfo;
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
