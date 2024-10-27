@@ -12,6 +12,13 @@ public:
     void begin(VkFramebuffer framebuffer, VkCommandBuffer commandBuffer);
     void end(VkCommandBuffer commandBuffer);
 
+    [[nodiscard]] const VkDevice& get_device() const {
+        return mDevice;
+    };
+    [[nodiscard]] const VkRenderPass& get_handle() const {
+        return mRenderpass;
+    };
+
 private:
     VkDevice mDevice{nullptr};
     VkRenderPass mRenderpass{nullptr};
