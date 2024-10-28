@@ -3,6 +3,7 @@
 #include "vulkan_command_buffer.hpp"
 #include "vulkan_defines.inl"
 #include "vulkan_device.hpp"
+#include "vulkan_framebuffer.hpp"
 #include "vulkan_platform.hpp"
 #include "vulkan_renderpass.hpp"
 #include "vulkan_swapchain.hpp"
@@ -81,6 +82,8 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
     mRenderpass =
         std::make_unique<RenderPass>(mDevice->get_logical_device(), *mSwapchain, renderArea, clearColor, depthStencil);
 
+    create_framebuffers();
+
     create_command_buffers();
 
     MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
@@ -88,8 +91,10 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
 
 VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
+    vkDeviceWaitIdle(mDevice->get_logical_device());
     // Reset pointer to members here since otherwise the destructors will be called in the wrong order (as expected by Vulkan)
     destroy_command_buffers();
+    destroy_framebuffers();
     mRenderpass.reset();
     mSwapchain.reset();
     mDevice.reset();
@@ -196,10 +201,32 @@ void VulkanRenderer::create_command_buffers() {
     for (size_t i = 0; i < swapChainImageCount; ++i) {
         mCommandBuffers.emplace_back(mDevice->get_logical_device(), mDevice->get_graphics_commandpool(), true);
     }
+    MSG_INFO("[Vulkan] All command buffers successfully created by: {:p}", static_cast<void*>(this));
 }
 
 void VulkanRenderer::destroy_command_buffers() {
     mCommandBuffers.clear();
+    MSG_INFO("[Vulkan] All command buffers successfully destroyed by: {:p}", static_cast<void*>(this));
+}
+
+void VulkanRenderer::create_framebuffers() {
+    MSG_INFO("[Vulkan] Create framebuffers called by: {:p}", static_cast<void*>(this));
+    size_t swapChainImageCount = mSwapchain->get_image_count();
+    mFrameBuffers.reserve(swapChainImageCount);
+
+    // TODO Finish this section, call and implement fences
+    for (size_t i = 0; i < swapChainImageCount; ++i) {
+        auto extent = mSwapchain->get_image_extent();
+        uint32_t attachmentCount = 2;  // TODO: Get this from Swapchain
+        VkImageView attachments[] = {mSwapchain->get_image_view(i), mSwapchain->get_depth_view()};
+        mFrameBuffers.emplace_back(mRenderpass.get(), extent.width, extent.height, attachmentCount, attachments);
+    }
+    MSG_INFO("[Vulkan] All framebuffers successfully created by: {:p}", static_cast<void*>(this));
+}
+
+void VulkanRenderer::destroy_framebuffers() {
+    mFrameBuffers.clear();
+    MSG_INFO("[Vulkan] All framebuffers successfully destroyed by: {:p}", static_cast<void*>(this));
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

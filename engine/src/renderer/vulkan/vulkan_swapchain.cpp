@@ -102,7 +102,9 @@ void VulkanSwapchain::create(uint32_t width, uint32_t height) {
     MSG_INFO("[Vulkan] Swapchain: {:p} successfully created", static_cast<void*>(this));
 }
 
-VulkanSwapchain::~VulkanSwapchain() { destroy(); };
+VulkanSwapchain::~VulkanSwapchain() {
+    destroy();
+};
 
 void VulkanSwapchain::destroy() {
     for (auto const& imageView : mViews) {
@@ -132,7 +134,9 @@ bool VulkanSwapchain::acquire_next_image_index(size_t timeout_ns, VkSemaphore im
     return true;
 };
 
-const VkFormat& VulkanSwapchain::get_image_depth_format() const { return mDepthAttachment->get_format(); }
+const VkFormat& VulkanSwapchain::get_image_depth_format() const {
+    return mDepthAttachment->get_format();
+}
 
 void VulkanSwapchain::present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete) {
     VkPresentInfoKHR presentInfo;
@@ -186,3 +190,7 @@ VkExtent2D VulkanSwapchain::choose_swap_extent(VkSurfaceCapabilitiesKHR capabili
 
     return actualExtent;
 };
+
+VkImageView VulkanSwapchain::get_depth_view() const {
+    return mDepthAttachment->get_view();
+}

@@ -11,7 +11,12 @@ public:
                 VkImageUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties);
     ~VulkanImage();
 
-    [[nodiscard]] const VkFormat& get_format() const { return mFormat; }
+    [[nodiscard]] const VkFormat& get_format() const {
+        return mFormat;
+    }
+    [[nodiscard]] VkImageView get_view() const {
+        return mImageView;
+    }
 
 private:
     VulkanDevice* mDevice;

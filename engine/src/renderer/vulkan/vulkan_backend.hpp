@@ -12,6 +12,7 @@ class VulkanDevice;
 class VulkanSwapchain;
 class RenderPass;
 class VulkanCommandBuffer;
+class VulkanFramebuffer;
 
 class VulkanRenderer : public RendererBackend {
 public:
@@ -34,6 +35,7 @@ private:
     std::unique_ptr<VulkanDevice> mDevice;
     std::unique_ptr<VulkanSwapchain> mSwapchain;
     std::unique_ptr<RenderPass> mRenderpass;
+    std::vector<VulkanFramebuffer> mFrameBuffers;
     std::vector<VulkanCommandBuffer> mCommandBuffers;
 
     bool mEnableValidationLayers{false};
@@ -45,6 +47,8 @@ private:
     void setup_debug_messenger();
     void create_command_buffers();
     void destroy_command_buffers();
+    void create_framebuffers();
+    void destroy_framebuffers();
 
     static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
                                                  const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,

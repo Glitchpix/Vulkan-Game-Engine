@@ -20,9 +20,20 @@ public:
 
     [[nodiscard]] bool acquire_next_image_index(size_t timeout_ns, VkSemaphore imageAvailable, VkFence imageFence,
                                                 uint32_t& outImageIndex);
-    [[nodiscard]] const VkFormat& get_image_color_format() const { return mImageFormat.format; };
+    [[nodiscard]] const VkFormat& get_image_color_format() const {
+        return mImageFormat.format;
+    };
     [[nodiscard]] const VkFormat& get_image_depth_format() const;
-    [[nodiscard]] const uint32_t& get_image_count() const { return mImageCount; };
+    [[nodiscard]] const uint32_t& get_image_count() const {
+        return mImageCount;
+    };
+    [[nodiscard]] VkExtent2D get_image_extent() const {
+        return mImageExtent;
+    };
+    [[nodiscard]] VkImageView get_image_view(size_t index) const {
+        return mViews.at(index);
+    };
+    [[nodiscard]] VkImageView get_depth_view() const;
 
     void present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete);
 
