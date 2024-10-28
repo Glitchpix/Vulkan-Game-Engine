@@ -69,7 +69,7 @@ RenderPass::RenderPass(VkDevice device, const VulkanSwapchain& swapchain, VkRect
 }
 
 void RenderPass::begin(VkFramebuffer framebuffer, VkCommandBuffer commandBuffer) {
-
+    MSG_TRACE("[Vulkan] Renderpass: {:p} begin render called", static_cast<void*>(this));
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = mClearColor;
     clearValues[1].depthStencil = mDepthStencil;
@@ -85,6 +85,12 @@ void RenderPass::begin(VkFramebuffer framebuffer, VkCommandBuffer commandBuffer)
     vkCmdBeginRenderPass(commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void RenderPass::end(VkCommandBuffer commandBuffer) { vkCmdEndRenderPass(commandBuffer); }
+void RenderPass::end(VkCommandBuffer commandBuffer) {
+    MSG_TRACE("[Vulkan] Renderpass: {:p} end render called", static_cast<void*>(this));
+    vkCmdEndRenderPass(commandBuffer);
+}
 
-RenderPass::~RenderPass() { vkDestroyRenderPass(mDevice, mRenderpass, nullptr); }
+RenderPass::~RenderPass() {
+    vkDestroyRenderPass(mDevice, mRenderpass, nullptr);
+    MSG_INFO("[Vulkan] Successfully destroyed renderpass: {:p}", static_cast<void*>(this));
+}

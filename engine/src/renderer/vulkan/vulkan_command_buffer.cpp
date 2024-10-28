@@ -1,4 +1,5 @@
 #include "vulkan_command_buffer.hpp"
+#include "core/logger.hpp"
 #include "vulkan/vulkan_core.h"
 #include "vulkan_defines.inl"
 
@@ -12,13 +13,16 @@ VulkanCommandBuffer::VulkanCommandBuffer(const VkDevice& device, const VkCommand
     allocateInfo.pNext = nullptr;
 
     VK_CHECK(vkAllocateCommandBuffers(mDevice, &allocateInfo, &mHandle));
+    MSG_INFO("[Vulkan] Command buffer: {:p} created", static_cast<void*>(this));
 }
 
 VulkanCommandBuffer::~VulkanCommandBuffer() {
     vkFreeCommandBuffers(mDevice, mCommandPool, 1, &mHandle);
+    MSG_INFO("[Vulkan] Command buffer: {:p} destroyed", static_cast<void*>(this));
 }
 
 void VulkanCommandBuffer::begin(bool singleUse, bool continueRenderpass, bool simultaneous) {
+    MSG_TRACE("[Vulkan] Command buffer: {:p} begin called", static_cast<void*>(this));
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0;
@@ -38,12 +42,13 @@ void VulkanCommandBuffer::begin(bool singleUse, bool continueRenderpass, bool si
 
 //TODO: Check valid states for these
 void VulkanCommandBuffer::end() {
-
+    MSG_TRACE("[Vulkan] Command buffer: {:p} end called", static_cast<void*>(this));
     VK_CHECK(vkEndCommandBuffer(mHandle));
     mState = State::COMMAND_BUFFER_STATE_RECORDING_ENDED;
 }
 
 void VulkanCommandBuffer::update_submitted() {
+    MSG_TRACE("[Vulkan] Command buffer: {:p} update submitted", static_cast<void*>(this));
     mState = State::COMMAND_BUFFER_STATE_SUBMITTED;
 }
 
@@ -51,6 +56,7 @@ void VulkanCommandBuffer::reset_state() {
     VkCommandBufferResetFlags resetFlags = 0;
     vkResetCommandBuffer(mHandle, resetFlags);
     mState = State::COMMAND_BUFFER_STATE_READY;
+    MSG_TRACE("[Vulkan] Command buffer: {:p} reset", static_cast<void*>(this));
 }
 // END TODO
 void VulkanCommandBuffer::begin_single_use() {
