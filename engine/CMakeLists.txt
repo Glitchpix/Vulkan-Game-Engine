@@ -17,7 +17,8 @@ add_library(Engine_lib SHARED src/core/logger.cpp src/core/logger.hpp
                               src/renderer/vulkan/vulkan_image.hpp src/renderer/vulkan/vulkan_image.cpp
                               src/renderer/vulkan/vulkan_renderpass.hpp src/renderer/vulkan/vulkan_renderpass.cpp
                               src/renderer/vulkan/vulkan_command_buffer.hpp src/renderer/vulkan/vulkan_command_buffer.cpp
-                              src/renderer/vulkan/vulkan_framebuffer.hpp src/renderer/vulkan/vulkan_framebuffer.cpp)
+                              src/renderer/vulkan/vulkan_framebuffer.hpp src/renderer/vulkan/vulkan_framebuffer.cpp
+                              src/renderer/vulkan/vulkan_fence.hpp src/renderer/vulkan/vulkan_fence.cpp)
                               
 target_include_directories(Engine_lib PRIVATE src/)
 
