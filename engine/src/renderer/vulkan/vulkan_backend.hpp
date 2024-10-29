@@ -46,6 +46,9 @@ private:
     bool mEnableValidationLayers{false};
     std::vector<const char*> mValidationLayers;
 
+    uint32_t mCurrentFrame{0};
+    uint32_t mImageIndex{0};
+
     std::vector<const char*> get_required_extensions();
     bool check_validation_layer_support();
     static void populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT& createInfo);

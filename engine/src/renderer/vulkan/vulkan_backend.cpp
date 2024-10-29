@@ -118,11 +118,91 @@ void VulkanRenderer::resized(uint32_t /*width*/, uint32_t /*height*/) {
 }
 
 bool VulkanRenderer::begin_frame(f64 /*deltaTime*/) {
-    //TODO
+    MSG_TRACE("[Vulkan] begin frame called");
+    constexpr auto timeout = UINT64_MAX;
+
+    auto& currentInFlightFence = mInFlightFences[mCurrentFrame];
+    auto& currentImageAvailableSemaphore = mImageAvailableSemaphore[mCurrentFrame];
+
+
+    if (!currentInFlightFence.wait(timeout)) {
+        MSG_WARN("[Vulkan] In-flight fence wait failure!");
+        return false;
+    }
+
+    if (!mSwapchain->acquire_next_image_index(timeout, currentImageAvailableSemaphore, VK_NULL_HANDLE, mImageIndex)) {
+        MSG_WARN("[Vulkan] Failed to acquire next image index!");
+        return false;
+    }
+
+    currentInFlightFence.reset();
+
+    auto& currentCommandBuffer = mCommandBuffers[mImageIndex];
+    currentCommandBuffer.reset_state();
+    currentCommandBuffer.begin_multiple_use();
+
+    auto& currentFrameBuffer = mFrameBuffers[mImageIndex];
+
+    const auto viewPortExtent = currentFrameBuffer.get_image_extent();
+    const auto viewPortWidth = static_cast<float>(viewPortExtent.width);
+    const auto viewPortHeight = static_cast<float>(viewPortExtent.height);
+
+    VkViewport viewport;
+    viewport.x = 0.0F;
+    viewport.y = viewPortHeight;
+    viewport.width = viewPortWidth;
+    viewport.height = -viewPortHeight;  // OpenGL-like offset
+    viewport.minDepth = 0.0F;
+    viewport.maxDepth = 1.0F;
+
+
+    VkRect2D scissor;
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    scissor.extent = viewPortExtent;
+
+    vkCmdSetViewport(currentCommandBuffer.get_handle(), 0, 1, &viewport);
+    vkCmdSetScissor(currentCommandBuffer.get_handle(), 0, 1, &scissor);
+
+    const auto renderExtent = viewPortExtent;
+    mRenderpass->set_render_area_extent(renderExtent);
+
+    mRenderpass->begin(currentFrameBuffer.get_handle(), currentCommandBuffer.get_handle());
+
     return true;
 }
 bool VulkanRenderer::end_frame(f64 /*deltaTime*/) {
-    //TODO
+    MSG_TRACE("[Vulkan] end frame called");
+    auto& currentInFlightFence = mInFlightFences[mCurrentFrame];
+    auto& currentImageAvailableSemaphore = mImageAvailableSemaphore[mCurrentFrame];
+    auto& currentRenderFinishedSemaphore = mRenderFinishedSemaphore[mCurrentFrame];
+    auto& currentCommandBuffer = mCommandBuffers[mImageIndex];
+
+    mRenderpass->end(currentCommandBuffer.get_handle());
+    currentCommandBuffer.end();
+
+    VkSubmitInfo submit_info{};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &currentCommandBuffer.get_handle();
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores = &currentRenderFinishedSemaphore;
+    submit_info.waitSemaphoreCount = 1;
+    submit_info.pWaitSemaphores = &currentImageAvailableSemaphore;
+
+    VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submit_info.pWaitDstStageMask = waitStages;
+
+    VkResult result = vkQueueSubmit(mDevice->get_graphics_queue(), 1, &submit_info, currentInFlightFence.get_handle());
+    if (result != VK_SUCCESS) {
+        MSG_ERROR("[Vulkan] vkQueueSubmit failed with result");
+        return false;
+    }
+    currentCommandBuffer.update_submitted();
+
+    mSwapchain->present(mDevice->get_present_queue(), mImageIndex, currentRenderFinishedSemaphore);
+
+    mCurrentFrame = (mCurrentFrame + 1) % mSwapchain->get_max_frames_inflight();
     return true;
 }
 
@@ -223,7 +303,7 @@ void VulkanRenderer::create_framebuffers() {
         auto extent = mSwapchain->get_image_extent();
         uint32_t attachmentCount = 2;  // TODO: Get this from Swapchain
         VkImageView attachments[] = {mSwapchain->get_image_view(i), mSwapchain->get_depth_view()};
-        mFrameBuffers.emplace_back(mRenderpass.get(), extent.width, extent.height, attachmentCount, attachments);
+        mFrameBuffers.emplace_back(mRenderpass.get(), extent, attachmentCount, attachments);
     }
     MSG_INFO("[Vulkan] All framebuffers successfully created by: {:p}", static_cast<void*>(this));
 }
