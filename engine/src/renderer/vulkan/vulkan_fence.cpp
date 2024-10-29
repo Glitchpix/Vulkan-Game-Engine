@@ -3,18 +3,20 @@
 #include "vulkan_defines.inl"
 
 
-VulkanFence::VulkanFence(VkDevice device, bool signaled) : mDevice{device}, mIsSignaled{signaled} {
+VulkanFence::VulkanFence(const VkDevice device, bool signaled) : mDevice{device}, mIsSignaled{signaled} {
     VkFenceCreateInfo fenceCreateInfo{};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     if (mIsSignaled) {
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }
     VK_CHECK(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mHandle));
+    MSG_INFO("[Vulkan] Fence: {:p} created", static_cast<void*>(this));
 }
 VulkanFence::~VulkanFence() {
     if (mHandle != nullptr) {
         vkDestroyFence(mDevice, mHandle, nullptr);
     }
+    MSG_INFO("[Vulkan] Fence: {:p} destroyed", static_cast<void*>(this));
 }
 
 bool VulkanFence::wait(size_t timeoutNs) {
@@ -50,5 +52,6 @@ void VulkanFence::reset() {
     if (mIsSignaled) {
         VK_CHECK(vkResetFences(mDevice, 1, &mHandle));
         mIsSignaled = false;
+        MSG_TRACE("[Vulkan] Fence: {:p} reset", static_cast<void*>(this));
     }
 }

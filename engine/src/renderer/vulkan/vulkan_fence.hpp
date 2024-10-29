@@ -5,9 +5,9 @@
 class VulkanFence {
 public:
     VulkanFence(const VulkanFence&) = default;
-    VulkanFence(VulkanFence&&) = delete;
+    VulkanFence(VulkanFence&&) = default;
     VulkanFence& operator=(const VulkanFence&) = default;
-    VulkanFence& operator=(VulkanFence&&) = delete;
+    VulkanFence& operator=(VulkanFence&&) = default;
     VulkanFence(VkDevice device, bool signaled);
     ~VulkanFence();
 

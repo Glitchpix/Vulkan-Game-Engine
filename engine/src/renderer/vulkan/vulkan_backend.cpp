@@ -3,6 +3,7 @@
 #include "vulkan_command_buffer.hpp"
 #include "vulkan_defines.inl"
 #include "vulkan_device.hpp"
+#include "vulkan_fence.hpp"
 #include "vulkan_framebuffer.hpp"
 #include "vulkan_platform.hpp"
 #include "vulkan_renderpass.hpp"
@@ -86,6 +87,8 @@ VulkanRenderer::VulkanRenderer(std::string applicationName, Platform* platform, 
 
     create_command_buffers();
 
+    create_sync_objects();
+
     MSG_TRACE("[Vulkan] Vulkan Renderer: {:p} initialized", static_cast<void*>(this));
 };
 
@@ -93,6 +96,7 @@ VulkanRenderer::~VulkanRenderer() {
     MSG_DEBUG("Vulkan renderer: {:p} destructor called", static_cast<void*>(this));
     vkDeviceWaitIdle(mDevice->get_logical_device());
     // Reset pointer to members here since otherwise the destructors will be called in the wrong order (as expected by Vulkan)
+    destroy_sync_objects();
     destroy_command_buffers();
     destroy_framebuffers();
     mRenderpass.reset();
@@ -227,6 +231,35 @@ void VulkanRenderer::create_framebuffers() {
 void VulkanRenderer::destroy_framebuffers() {
     mFrameBuffers.clear();
     MSG_INFO("[Vulkan] All framebuffers successfully destroyed by: {:p}", static_cast<void*>(this));
+}
+
+void VulkanRenderer::create_sync_objects() {
+    const auto& maxFramesInFlight = mSwapchain->get_max_frames_inflight();
+    const auto logicalDevice = mDevice->get_logical_device();
+    mImageAvailableSemaphore.resize(maxFramesInFlight);
+    mRenderFinishedSemaphore.resize(maxFramesInFlight);
+
+    mInFlightFences.reserve(maxFramesInFlight);
+
+    VkSemaphoreCreateInfo semaphoreCreateInfo{};
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    for (size_t i = 0; i < maxFramesInFlight; ++i) {
+        // TODO: Extract semaphores into class
+        VK_CHECK(vkCreateSemaphore(logicalDevice, &semaphoreCreateInfo, nullptr, &mImageAvailableSemaphore[i]));
+        VK_CHECK(vkCreateSemaphore(logicalDevice, &semaphoreCreateInfo, nullptr, &mRenderFinishedSemaphore[i]));
+
+        mInFlightFences.emplace_back(logicalDevice, true);
+    }
+}
+
+void VulkanRenderer::destroy_sync_objects() {
+    const auto& maxFramesInFlight = mSwapchain->get_max_frames_inflight();
+    for (size_t i = 0; i < maxFramesInFlight; ++i) {
+        vkDestroySemaphore(mDevice->get_logical_device(), mImageAvailableSemaphore[i], nullptr);
+        vkDestroySemaphore(mDevice->get_logical_device(), mRenderFinishedSemaphore[i], nullptr);
+    }
+    mInFlightFences.clear();
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

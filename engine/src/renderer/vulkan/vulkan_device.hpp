@@ -34,7 +34,7 @@ public:
     [[nodiscard]] const SwapChainSupportDetails& get_swapchain_support_details() const {
         return mSwapChainSupport;
     }
-    [[nodiscard]] const VkDevice& get_logical_device() const {
+    [[nodiscard]] VkDevice get_logical_device() const {
         return mDevice;
     }
     [[nodiscard]] const VkSurfaceKHR& get_surface() const {

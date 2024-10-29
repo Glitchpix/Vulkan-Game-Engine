@@ -27,6 +27,10 @@ public:
     [[nodiscard]] const uint32_t& get_image_count() const {
         return mImageCount;
     };
+
+    [[nodiscard]] const size_t& get_max_frames_inflight() const {
+        return mMaxFramesInFlight;
+    };
     [[nodiscard]] VkExtent2D get_image_extent() const {
         return mImageExtent;
     };

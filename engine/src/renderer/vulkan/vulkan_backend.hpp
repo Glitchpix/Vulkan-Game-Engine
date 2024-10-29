@@ -13,6 +13,7 @@ class VulkanSwapchain;
 class RenderPass;
 class VulkanCommandBuffer;
 class VulkanFramebuffer;
+class VulkanFence;
 
 class VulkanRenderer : public RendererBackend {
 public:
@@ -38,6 +39,10 @@ private:
     std::vector<VulkanFramebuffer> mFrameBuffers;
     std::vector<VulkanCommandBuffer> mCommandBuffers;
 
+    std::vector<VkSemaphore> mImageAvailableSemaphore;
+    std::vector<VkSemaphore> mRenderFinishedSemaphore;
+    std::vector<VulkanFence> mInFlightFences;
+
     bool mEnableValidationLayers{false};
     std::vector<const char*> mValidationLayers;
 
@@ -49,6 +54,8 @@ private:
     void destroy_command_buffers();
     void create_framebuffers();
     void destroy_framebuffers();
+    void create_sync_objects();
+    void destroy_sync_objects();
 
     static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
                                                  const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
