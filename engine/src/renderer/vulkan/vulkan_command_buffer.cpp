@@ -23,7 +23,7 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
 
 void VulkanCommandBuffer::begin(bool singleUse, bool continueRenderpass, bool simultaneous) {
     MSG_TRACE("[Vulkan] Command buffer: {:p} begin called", static_cast<void*>(this));
-    VkCommandBufferBeginInfo beginInfo;
+    VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0;
     if (singleUse) {
@@ -61,6 +61,10 @@ void VulkanCommandBuffer::reset_state() {
 // END TODO
 void VulkanCommandBuffer::begin_single_use() {
     begin(true, false, false);
+}
+
+void VulkanCommandBuffer::begin_multiple_use() {
+    begin(false, false, false);
 }
 
 void VulkanCommandBuffer::end_single_use(VkQueue queue) {

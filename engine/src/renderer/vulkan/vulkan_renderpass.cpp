@@ -75,7 +75,7 @@ void RenderPass::begin(VkFramebuffer framebuffer, VkCommandBuffer commandBuffer)
     clearValues[1].depthStencil = mDepthStencil;
 
     VkRenderPassBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     beginInfo.framebuffer = framebuffer;
     beginInfo.renderPass = mRenderpass;
     beginInfo.renderArea = mRenderArea;

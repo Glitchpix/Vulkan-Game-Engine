@@ -17,7 +17,13 @@ public:
     void update_submitted();
     void reset_state();
     void begin_single_use();
+    void begin_multiple_use();
     void end_single_use(VkQueue queue);
+    void end();
+
+    [[nodiscard]] const VkCommandBuffer& get_handle() const {
+        return mHandle;
+    };
 
 private:
     const VkDevice mDevice;
@@ -27,5 +33,4 @@ private:
     bool mPrimary;
 
     void begin(bool singleUse, bool continueRenderpass, bool simultaneous);
-    void end();
 };

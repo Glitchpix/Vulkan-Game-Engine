@@ -12,6 +12,10 @@ public:
     void begin(VkFramebuffer framebuffer, VkCommandBuffer commandBuffer);
     void end(VkCommandBuffer commandBuffer);
 
+    void set_render_area_extent(VkExtent2D extent) {
+        mRenderArea.extent = extent;
+    }
+
     [[nodiscard]] const VkDevice& get_device() const {
         return mDevice;
     };

@@ -53,6 +53,14 @@ public:
         return mGraphicsCommandPool;
     }
 
+    [[nodiscard]] const VkQueue& get_graphics_queue() const {
+        return mGraphicsQueue;
+    }
+
+    [[nodiscard]] const VkQueue& get_present_queue() const {
+        return mPresentQueue;
+    }
+
 private:
     VkInstance mInstance{nullptr};
     VkSurfaceKHR mSurface{nullptr};

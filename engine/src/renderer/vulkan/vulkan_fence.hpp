@@ -15,6 +15,10 @@ public:
 
     void reset();
 
+    [[nodiscard]] const VkFence& get_handle() const {
+        return mHandle;
+    };
+
 private:
     VkFence mHandle{};
     VkDevice mDevice{};

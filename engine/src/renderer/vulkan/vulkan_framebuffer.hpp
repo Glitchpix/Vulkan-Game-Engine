@@ -9,14 +9,21 @@ public:
     VulkanFramebuffer(VulkanFramebuffer&&) = default;
     VulkanFramebuffer& operator=(const VulkanFramebuffer&) = default;
     VulkanFramebuffer& operator=(VulkanFramebuffer&&) = default;
-    VulkanFramebuffer(RenderPass* renderpass, uint32_t width, uint32_t height, uint32_t attachmentCount,
-                      VkImageView* attachments);
+    VulkanFramebuffer(RenderPass* renderpass, VkExtent2D extent, uint32_t attachmentCount, VkImageView* attachments);
     ~VulkanFramebuffer();
+
+    [[nodiscard]] VkExtent2D get_image_extent() const {
+        return mImageExtent;
+    };
+
+
+    [[nodiscard]] const VkFramebuffer& get_handle() const {
+        return mHandle;
+    };
 
 private:
     VkFramebuffer mHandle{nullptr};
-    uint32_t mWidth;
-    uint32_t mHeight;
+    VkExtent2D mImageExtent{};
     uint32_t mAttachmentCount;
     VkImageView* mAttachments;  // TODO: refactor this to C++ style
     RenderPass* mRenderpass;
