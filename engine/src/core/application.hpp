@@ -44,5 +44,6 @@ private:
 
     static bool on_event(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
     static bool on_key(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
-    static bool on_mouse_move(EventManager::EventCode code, void* sender, void* listener, EventManager::Context context);
+    static bool on_mouse_move(EventManager::EventCode code, void* sender, void* listener,
+                              EventManager::Context context);
 };

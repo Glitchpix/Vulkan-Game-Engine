@@ -143,9 +143,13 @@ double Platform::getAbsoluteTime() const {
     return (double)now_time.QuadPart * mClock_frequency;
 }
 
-Platform::State* Platform::getState() { return mState.get(); }
+Platform::State* Platform::getState() {
+    return mState.get();
+}
 
-void Platform::sleep(std::size_t ms) { Sleep(static_cast<DWORD>(ms)); }
+void Platform::sleep(std::size_t ms) {
+    Sleep(static_cast<DWORD>(ms));
+}
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     // Get pointer to platform instance of input handler
@@ -169,11 +173,15 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT msg, WPARAM wParam, LPARA
             PostQuitMessage(0);
             return 0;
         case WM_SIZE: {
-            // RECT r;
-            // GetClientRect(hwnd, &r);
-            // unsigned int width = r.right - r.left;
-            // unsigned int height = r.bottom - r.top;
-            // TODO: Fire resize event here
+            RECT r;
+            GetClientRect(hwnd, &r);
+            u16 width = r.right - r.left;
+            u16 height = r.bottom - r.top;
+            EventManager::Context eventData{};
+            eventData.i16[0] = width;
+            eventData.i16[1] = height;
+            eventContext->eventManager->fire_event(EventManager::EventCode::EVENT_CODE_WINDOW_RESIZED,
+                                                   static_cast<void*>(hwnd), eventData);
         } break;
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:

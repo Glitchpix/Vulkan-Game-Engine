@@ -13,9 +13,9 @@ Renderer::Renderer(std::string applicationName, Platform* platform, i16 width, i
 Renderer::~Renderer() = default;
 
 void Renderer::on_resize(i16 width, i16 height) {
-    //TODO: handle resize
-    MSG_ERROR("Resize not implemented yet!");
-    mRenderer->resized(width, height);
+    if (mRenderer != nullptr) {
+        mRenderer->resized(width, height);
+    }
 }
 
 bool Renderer::draw_frame(const RenderPacket& renderPacket) {

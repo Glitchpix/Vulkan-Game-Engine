@@ -1,5 +1,6 @@
 #include "application.hpp"
 #include "core/clock.hpp"
+#include "core/event.hpp"
 #include "core/input.hpp"
 #include "core/logger.hpp"
 #include "game_types.hpp"
@@ -34,6 +35,8 @@ Application::Application(Game& game, EventManager& eventManager)
         // TODO: Probably throw an exception here too...
     }
     MSG_TRACE("Game: {:p} initialized", static_cast<void*>(&mGame));
+
+    mEventManager.register_event(EventManager::EventCode::EVENT_CODE_WINDOW_RESIZED, this, Application::on_event);
 
     mGame.on_resize(mWidth, mHeight);
     MSG_TRACE("Application: {:p} created", static_cast<void*>(this));
@@ -86,8 +89,10 @@ bool Application::run() {
     mRunning = false;
 
     mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT, this, Application::on_event);
+    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_WINDOW_RESIZED, this, Application::on_event);
     mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_KEY_PRESSED, this, Application::on_key);
     mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_KEY_RELEASED, this, Application::on_key);
+    mEventManager.unregister_event(EventManager::EventCode::EVENT_CODE_MOUSE_MOVED, this, Application::on_mouse_move);
 
     mPlatform->shutdown();
 
@@ -95,13 +100,35 @@ bool Application::run() {
 }
 
 bool Application::on_event(EventManager::EventCode code, void* /*unused*/, void* listener,
-                           EventManager::Context /*unused*/) {
+                           EventManager::Context context) {
     auto* instance = static_cast<Application*>(listener);
     switch (code) {
         case EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT:
             MSG_TRACE("EVENT_CODE_APPLICATION_QUIT recieved, shutting down application");
             instance->mRunning = false;
             return true;
+        case EventManager::EventCode::EVENT_CODE_WINDOW_RESIZED: {
+            MSG_TRACE("EVENT_CODE_WINDOW_RESIZED recieved");
+            i16 newWidth{context.i16[0]};
+            i16 newHeight{context.i16[1]};
+            if (newWidth == instance->mHeight || newHeight == instance->mWidth) {
+                return false;
+            }
+            if (newWidth == 0 || newHeight == 0) {
+                MSG_TRACE("EVENT_CODE_WINDOW_RESIZED - application minimized, suspending application");
+                instance->mSuspended = true;
+                return true;
+            }
+            if (instance->mSuspended) {
+                MSG_TRACE("EVENT_CODE_WINDOW_RESIZED - window restored, resuming application");
+                instance->mSuspended = false;
+            }
+            instance->mWidth = newWidth;
+            instance->mHeight = newHeight;
+            instance->mGame.on_resize(instance->mWidth, instance->mHeight);
+            instance->mRenderer->on_resize(instance->mWidth, instance->mHeight);
+            return true;
+        }
         default:
             break;
     }
