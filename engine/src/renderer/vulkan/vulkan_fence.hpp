@@ -4,10 +4,10 @@
 
 class VulkanFence {
 public:
-    VulkanFence(const VulkanFence&) = default;
+    VulkanFence(const VulkanFence&) = delete;
     VulkanFence(VulkanFence&&) = default;
-    VulkanFence& operator=(const VulkanFence&) = default;
-    VulkanFence& operator=(VulkanFence&&) = default;
+    VulkanFence& operator=(const VulkanFence&) = delete;
+    VulkanFence& operator=(VulkanFence&&) = delete;
     VulkanFence(VkDevice device, bool signaled);
     ~VulkanFence();
 
@@ -20,7 +20,7 @@ public:
     };
 
 private:
-    VkFence mHandle{};
-    VkDevice mDevice{};
+    VkFence mHandle{nullptr};
+    VkDevice mDevice{nullptr};
     bool mIsSignaled{};
 };

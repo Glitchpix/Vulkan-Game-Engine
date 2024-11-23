@@ -3,7 +3,7 @@
 #include "vulkan_defines.inl"
 
 
-VulkanFence::VulkanFence(const VkDevice device, bool signaled) : mDevice{device}, mIsSignaled{signaled} {
+VulkanFence::VulkanFence(const VkDevice device, const bool signaled) : mDevice{device}, mIsSignaled{signaled} {
     VkFenceCreateInfo fenceCreateInfo{};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     if (mIsSignaled) {

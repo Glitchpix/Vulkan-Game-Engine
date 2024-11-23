@@ -138,7 +138,7 @@ const VkFormat& VulkanSwapchain::get_image_depth_format() const {
     return mDepthAttachment->get_format();
 }
 
-void VulkanSwapchain::present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete) {
+VkResult VulkanSwapchain::present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete) {
     VkPresentInfoKHR presentInfo;
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
@@ -148,14 +148,7 @@ void VulkanSwapchain::present(VkQueue presentQueue, uint32_t presentImageIndex, 
     presentInfo.pImageIndices = &presentImageIndex;
     presentInfo.pResults = nullptr;
 
-    VkResult resultImageAcquire = vkQueuePresentKHR(presentQueue, &presentInfo);
-
-    if (resultImageAcquire == VK_ERROR_OUT_OF_DATE_KHR || resultImageAcquire == VK_SUBOPTIMAL_KHR) {
-        // recreate();   TODO: Implemement
-        throw std::runtime_error("Recreate swap chain image not implemented!");
-    } else if (resultImageAcquire != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
-    }
+    return vkQueuePresentKHR(presentQueue, &presentInfo);
 };
 
 VkSurfaceFormatKHR VulkanSwapchain::choose_swap_surface_format(std::vector<VkSurfaceFormatKHR> formats) {

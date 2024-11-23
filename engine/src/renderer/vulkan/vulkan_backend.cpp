@@ -113,8 +113,22 @@ VulkanRenderer::~VulkanRenderer() {
     vkDestroyInstance(mInstance, nullptr);
 }
 
-void VulkanRenderer::resized(uint32_t /*width*/, uint32_t /*height*/) {
-    //TODO
+void VulkanRenderer::resized(uint32_t width, uint32_t height) {
+    MSG_INFO("[Vulkan] resize event recieved, recreating framebuffers!");
+    mWidth = width;
+    mHeight = height;
+    recreate_swapchain_resources();
+}
+
+void VulkanRenderer::recreate_swapchain_resources() {
+    vkDeviceWaitIdle(mDevice->get_logical_device());
+    mSwapchain->recreate(mWidth, mHeight);
+    destroy_sync_objects();
+    destroy_command_buffers();
+    destroy_framebuffers();
+    create_framebuffers();
+    create_command_buffers();
+    create_sync_objects();
 }
 
 bool VulkanRenderer::begin_frame(f64 /*deltaTime*/) {
@@ -200,7 +214,13 @@ bool VulkanRenderer::end_frame(f64 /*deltaTime*/) {
     }
     currentCommandBuffer.update_submitted();
 
-    mSwapchain->present(mDevice->get_present_queue(), mImageIndex, currentRenderFinishedSemaphore);
+    VkResult resultImageAcquire =
+        mSwapchain->present(mDevice->get_present_queue(), mImageIndex, currentRenderFinishedSemaphore);
+    if (resultImageAcquire == VK_ERROR_OUT_OF_DATE_KHR || resultImageAcquire == VK_SUBOPTIMAL_KHR) {
+        recreate_swapchain_resources();
+    } else if (resultImageAcquire != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     mCurrentFrame = (mCurrentFrame + 1) % mSwapchain->get_max_frames_inflight();
     return true;
@@ -314,7 +334,7 @@ void VulkanRenderer::destroy_framebuffers() {
 }
 
 void VulkanRenderer::create_sync_objects() {
-    const auto& maxFramesInFlight = mSwapchain->get_max_frames_inflight();
+    const auto maxFramesInFlight = mSwapchain->get_max_frames_inflight();
     const auto logicalDevice = mDevice->get_logical_device();
     mImageAvailableSemaphore.resize(maxFramesInFlight);
     mRenderFinishedSemaphore.resize(maxFramesInFlight);

@@ -39,7 +39,7 @@ public:
     };
     [[nodiscard]] VkImageView get_depth_view() const;
 
-    void present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete);
+    [[nodiscard]] VkResult present(VkQueue presentQueue, uint32_t presentImageIndex, VkSemaphore renderComplete);
 
 private:
     VulkanDevice* mDevice{nullptr};

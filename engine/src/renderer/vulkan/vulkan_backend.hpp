@@ -60,6 +60,8 @@ private:
     void create_sync_objects();
     void destroy_sync_objects();
 
+    void recreate_swapchain_resources();
+
     static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
                                                  const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                                  const VkAllocationCallbacks* pAllocator,
