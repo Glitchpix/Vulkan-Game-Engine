@@ -12,14 +12,13 @@
 
 
 VulkanSwapchain::VulkanSwapchain(VulkanDevice& device, uint32_t width, uint32_t height) : mDevice{&device} {
-    const auto swapChainSupport = mDevice->get_swapchain_support_details();
-    mImageFormat = choose_swap_surface_format(swapChainSupport.formats);
-    mPresentMode = choose_swap_present_mode(swapChainSupport.presentModes);
     create(width, height);
 };
 
 void VulkanSwapchain::create(uint32_t width, uint32_t height) {
     const auto swapChainSupport = mDevice->get_swapchain_support_details();
+    mImageFormat = choose_swap_surface_format(swapChainSupport.formats);
+    mPresentMode = choose_swap_present_mode(swapChainSupport.presentModes);
     const VkDevice logicalDevice = mDevice->get_logical_device();
     mImageExtent = choose_swap_extent(swapChainSupport.capabilities, width, height);
 
@@ -123,8 +122,7 @@ bool VulkanSwapchain::acquire_next_image_index(size_t timeout_ns, VkSemaphore im
     VkResult result = vkAcquireNextImageKHR(mDevice->get_logical_device(), mHandle, timeout_ns, imageAvailable,
                                             imageFence, &outImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        // recreate();   TODO: Implemement
-        throw std::runtime_error("Recreate swap chain image not implemented!");
+        MSG_DEBUG("[Vulkan] Swapchain acquire image out of date!");
         return false;
     }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {

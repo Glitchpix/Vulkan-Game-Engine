@@ -44,6 +44,7 @@ private:
     std::vector<VulkanFence> mInFlightFences;
 
     bool mEnableValidationLayers{false};
+    bool mRecreatingSwapChain{false};
     std::vector<const char*> mValidationLayers;
 
     uint32_t mCurrentFrame{0};

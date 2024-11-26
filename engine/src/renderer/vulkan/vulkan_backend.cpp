@@ -121,18 +121,24 @@ void VulkanRenderer::resized(uint32_t width, uint32_t height) {
 }
 
 void VulkanRenderer::recreate_swapchain_resources() {
+    if (mRecreatingSwapChain) {
+        return;
+    }
     vkDeviceWaitIdle(mDevice->get_logical_device());
+    mRecreatingSwapChain = true;
     mSwapchain->recreate(mWidth, mHeight);
-    destroy_sync_objects();
     destroy_command_buffers();
     destroy_framebuffers();
     create_framebuffers();
     create_command_buffers();
-    create_sync_objects();
+    mRecreatingSwapChain = false;
 }
 
 bool VulkanRenderer::begin_frame(f64 /*deltaTime*/) {
     MSG_TRACE("[Vulkan] begin frame called");
+    if (mRecreatingSwapChain) {
+        return false;
+    }
     constexpr auto timeout = UINT64_MAX;
 
     auto& currentInFlightFence = mInFlightFences[mCurrentFrame];

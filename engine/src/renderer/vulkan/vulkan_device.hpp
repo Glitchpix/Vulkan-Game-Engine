@@ -31,7 +31,8 @@ public:
     VulkanDevice& operator=(VulkanDevice&&) = delete;
     VulkanDevice(VkInstance instance, VkSurfaceKHR surface, const std::vector<const char*>& validationLayers);
     ~VulkanDevice();
-    [[nodiscard]] const SwapChainSupportDetails& get_swapchain_support_details() const {
+    [[nodiscard]] const SwapChainSupportDetails& get_swapchain_support_details() {
+        mSwapChainSupport = query_swapchain_support(mPhysicalDevice);
         return mSwapChainSupport;
     }
     [[nodiscard]] VkDevice get_logical_device() const {

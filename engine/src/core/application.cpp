@@ -104,7 +104,7 @@ bool Application::on_event(EventManager::EventCode code, void* /*unused*/, void*
     auto* instance = static_cast<Application*>(listener);
     switch (code) {
         case EventManager::EventCode::EVENT_CODE_APPLICATION_QUIT:
-            MSG_TRACE("EVENT_CODE_APPLICATION_QUIT recieved, shutting down application");
+            MSG_DEBUG("EVENT_CODE_APPLICATION_QUIT recieved, shutting down application");
             instance->mRunning = false;
             return true;
         case EventManager::EventCode::EVENT_CODE_WINDOW_RESIZED: {
@@ -115,12 +115,12 @@ bool Application::on_event(EventManager::EventCode code, void* /*unused*/, void*
                 return false;
             }
             if (newWidth == 0 || newHeight == 0) {
-                MSG_TRACE("EVENT_CODE_WINDOW_RESIZED - application minimized, suspending application");
+                MSG_DEBUG("EVENT_CODE_WINDOW_RESIZED - application minimized, suspending application");
                 instance->mSuspended = true;
                 return true;
             }
             if (instance->mSuspended) {
-                MSG_TRACE("EVENT_CODE_WINDOW_RESIZED - window restored, resuming application");
+                MSG_DEBUG("EVENT_CODE_WINDOW_RESIZED - window restored, resuming application");
                 instance->mSuspended = false;
             }
             instance->mWidth = newWidth;
