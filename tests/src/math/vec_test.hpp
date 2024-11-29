@@ -2,6 +2,9 @@
 #include "doctest.h"
 #include "math/vec.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while, cppcoreguidelines-pro-type-member-init, readability-function-cognitive-complexity)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 TEST_SUITE("Vec2") {
     TEST_CASE("Equality - No initialized values") {
         Vec2 firstVec;
@@ -254,3 +257,5 @@ TEST_SUITE("Vec4") {
         CHECK(result == 5);
     }
 }
+#pragma clang diagnostic pop
+// NOLINTEND(cppcoreguidelines-avoid-do-while, cppcoreguidelines-pro-type-member-init, readability-function-cognitive-complexity)
