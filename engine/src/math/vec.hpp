@@ -57,9 +57,9 @@ Vec2 operator-(const Vec2& lhs, const Vec2& rhs);
 Vec3 operator-(const Vec3& lhs, const Vec3& rhs);
 Vec4 operator-(const Vec4& lhs, const Vec4& rhs);
 
-Vec2 dot(const Vec2& lhs, const Vec2& rhs);
-Vec3 dot(const Vec3& lhs, const Vec3& rhs);
-Vec4 dot(const Vec4& lhs, const Vec4& rhs);
+f32 dot(const Vec2& lhs, const Vec2& rhs);
+f32 dot(const Vec3& lhs, const Vec3& rhs);
+f32 dot(const Vec4& lhs, const Vec4& rhs);
 
 Vec2 cross(const Vec2& lhs, const Vec2& rhs);
 Vec3 cross(const Vec3& lhs, const Vec3& rhs);

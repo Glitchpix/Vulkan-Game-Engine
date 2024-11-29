@@ -41,28 +41,16 @@ Vec4 operator-(const Vec4& lhs, const Vec4& rhs) {
     return Vec4{{lhs.x - rhs.x}, {lhs.y - rhs.y}, {lhs.z - rhs.z}, {lhs.w - rhs.w}};
 }
 
-Vec2 dot(const Vec2& lhs, const Vec2& rhs) {
-    (void)rhs;
-    return lhs;
+f32 dot(const Vec2& lhs, const Vec2& rhs) {
+    return (lhs.x * rhs.x) + (lhs.y * rhs.y);
 }
-Vec3 dot(const Vec3& lhs, const Vec3& rhs) {
-    (void)rhs;
-    return lhs;
+f32 dot(const Vec3& lhs, const Vec3& rhs) {
+    return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
 }
-Vec4 dot(const Vec4& lhs, const Vec4& rhs) {
-    (void)rhs;
-    return lhs;
+f32 dot(const Vec4& lhs, const Vec4& rhs) {
+    return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
 }
 
-Vec2 cross(const Vec2& lhs, const Vec2& rhs) {
-    (void)rhs;
-    return lhs;
-}
 Vec3 cross(const Vec3& lhs, const Vec3& rhs) {
-    (void)rhs;
-    return lhs;
-}
-Vec4 cross(const Vec4& lhs, const Vec4& rhs) {
-    (void)rhs;
-    return lhs;
+    return Vec3{{lhs.y * rhs.z - lhs.z * rhs.y}, {lhs.z * rhs.x - lhs.x * rhs.z}, {lhs.x * rhs.y - lhs.y * rhs.x}};
 }

@@ -58,6 +58,13 @@ TEST_SUITE("Vec2") {
         CHECK(resultVec.x == 0);
         CHECK(resultVec.y == 0);
     }
+    TEST_CASE("Dot product - Mixed-sign values") {
+        Vec2 firstVec{{2}, {-2}};
+        Vec2 secondVec{{2}, {-2}};
+
+        f32 result = dot(firstVec, secondVec);
+        CHECK(result == 8);
+    }
 }
 
 TEST_SUITE("Vec3") {
@@ -123,6 +130,47 @@ TEST_SUITE("Vec3") {
         CHECK(resultVec.x == 0);
         CHECK(resultVec.y == 0);
         CHECK(resultVec.z == 2);
+    }
+    TEST_CASE("Dot product - Mixed-sign values") {
+        Vec3 firstVec{{2}, {-2}, {1}};
+        Vec3 secondVec{{2}, {-2}, {-1}};
+
+        f32 result = dot(firstVec, secondVec);
+        CHECK(result == 7);
+    }
+    TEST_CASE("Cross product - Simple unit value axes") {
+        Vec3 firstVec{{1}, {0}, {0}};
+        Vec3 secondVec{{0}, {1}, {0}};
+
+        SUBCASE("First ordering") {
+            Vec3 resultVec = cross(firstVec, secondVec);
+            CHECK(resultVec.x == 0);
+            CHECK(resultVec.y == 0);
+            CHECK(resultVec.z == 1);
+        }
+        SUBCASE("Second ordering") {
+            Vec3 resultVec = cross(secondVec, firstVec);
+            CHECK(resultVec.x == 0);
+            CHECK(resultVec.y == 0);
+            CHECK(resultVec.z == -1);
+        }
+    }
+    TEST_CASE("Cross product - Mixed-values") {
+        Vec3 firstVec{{1}, {2}, {3}};
+        Vec3 secondVec{{3}, {1}, {2}};
+
+        SUBCASE("First ordering") {
+            Vec3 resultVec = cross(firstVec, secondVec);
+            CHECK(resultVec.x == 1);
+            CHECK(resultVec.y == 7);
+            CHECK(resultVec.z == -5);
+        }
+        SUBCASE("Second ordering") {
+            Vec3 resultVec = cross(secondVec, firstVec);
+            CHECK(resultVec.x == -1);
+            CHECK(resultVec.y == -7);
+            CHECK(resultVec.z == 5);
+        }
     }
 }
 
@@ -197,5 +245,12 @@ TEST_SUITE("Vec4") {
         CHECK(resultVec.y == 0);
         CHECK(resultVec.z == 2);
         CHECK(resultVec.w == 2);
+    }
+    TEST_CASE("Dot product - Mixed-sign values") {
+        Vec4 firstVec{{2}, {-2}, {1}, {1}};
+        Vec4 secondVec{{2}, {-2}, {-1}, {-2}};
+
+        f32 result = dot(firstVec, secondVec);
+        CHECK(result == 5);
     }
 }
