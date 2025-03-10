@@ -41,26 +41,60 @@ struct Vec4 {
 using Quaternion = Vec4;
 
 // Operators
-bool operator==(const Vec2& lhs, const Vec2& rhs);
-bool operator==(const Vec3& lhs, const Vec3& rhs);
-bool operator==(const Vec4& lhs, const Vec4& rhs);
+constexpr bool operator==(const Vec2& lhs, const Vec2& rhs) {
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+constexpr bool operator==(const Vec3& lhs, const Vec3& rhs) {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+}
+constexpr bool operator==(const Vec4& lhs, const Vec4& rhs) {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
+}
 
-Vec2 operator-(const Vec2& vec);
-Vec3 operator-(const Vec3& vec);
-Vec4 operator-(const Vec4& vec);
 
-Vec2 operator+(const Vec2& lhs, const Vec2& rhs);
-Vec3 operator+(const Vec3& lhs, const Vec3& rhs);
-Vec4 operator+(const Vec4& lhs, const Vec4& rhs);
+constexpr Vec2 operator-(const Vec2& vec) {
+    return Vec2{{-vec.x}, {-vec.y}};
+}
+constexpr Vec3 operator-(const Vec3& vec) {
+    return Vec3{{-vec.x}, {-vec.y}, {-vec.z}};
+}
+constexpr Vec4 operator-(const Vec4& vec) {
+    return Vec4{{-vec.x}, {-vec.y}, {-vec.z}, {-vec.w}};
+}
 
-Vec2 operator-(const Vec2& lhs, const Vec2& rhs);
-Vec3 operator-(const Vec3& lhs, const Vec3& rhs);
-Vec4 operator-(const Vec4& lhs, const Vec4& rhs);
 
-f32 dot(const Vec2& lhs, const Vec2& rhs);
-f32 dot(const Vec3& lhs, const Vec3& rhs);
-f32 dot(const Vec4& lhs, const Vec4& rhs);
+constexpr Vec2 operator+(const Vec2& lhs, const Vec2& rhs) {
+    return Vec2{{lhs.x + rhs.x}, {lhs.y + rhs.y}};
+}
+constexpr Vec3 operator+(const Vec3& lhs, const Vec3& rhs) {
+    return Vec3{{lhs.x + rhs.x}, {lhs.y + rhs.y}, {lhs.z + rhs.z}};
+}
+constexpr Vec4 operator+(const Vec4& lhs, const Vec4& rhs) {
+    return Vec4{{lhs.x + rhs.x}, {lhs.y + rhs.y}, {lhs.z + rhs.z}, {lhs.w + rhs.w}};
+}
 
-Vec2 cross(const Vec2& lhs, const Vec2& rhs);
-Vec3 cross(const Vec3& lhs, const Vec3& rhs);
-Vec4 cross(const Vec4& lhs, const Vec4& rhs);
+constexpr Vec2 operator-(const Vec2& lhs, const Vec2& rhs) {
+    return Vec2{{lhs.x - rhs.x}, {lhs.y - rhs.y}};
+}
+constexpr Vec3 operator-(const Vec3& lhs, const Vec3& rhs) {
+    return Vec3{{lhs.x - rhs.x}, {lhs.y - rhs.y}, {lhs.z - rhs.z}};
+}
+constexpr Vec4 operator-(const Vec4& lhs, const Vec4& rhs) {
+    return Vec4{{lhs.x - rhs.x}, {lhs.y - rhs.y}, {lhs.z - rhs.z}, {lhs.w - rhs.w}};
+}
+
+
+constexpr f32 dot(const Vec2& lhs, const Vec2& rhs) {
+    return (lhs.x * rhs.x) + (lhs.y * rhs.y);
+}
+constexpr f32 dot(const Vec3& lhs, const Vec3& rhs) {
+    return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
+}
+constexpr f32 dot(const Vec4& lhs, const Vec4& rhs) {
+    return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
+}
+
+
+constexpr Vec3 cross(const Vec3& lhs, const Vec3& rhs) {
+    return Vec3{{lhs.y * rhs.z - lhs.z * rhs.y}, {lhs.z * rhs.x - lhs.x * rhs.z}, {lhs.x * rhs.y - lhs.y * rhs.x}};
+}
