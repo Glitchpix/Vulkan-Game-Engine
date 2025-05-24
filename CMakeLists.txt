@@ -14,11 +14,10 @@ else()
 endif()
 
 add_subdirectory(engine)
+add_subdirectory(app)
 add_subdirectory(tests)
-enable_testing()
-add_test(NAME MyTest COMMAND Test)
 add_custom_target(CopyLibs ALL
-  COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:Test> $<TARGET_RUNTIME_DLLS:Test>
-  DEPENDS Test Engine_lib
+  COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:App> $<TARGET_RUNTIME_DLLS:App>
+  DEPENDS App Engine_lib
   COMMAND_EXPAND_LISTS
 )
